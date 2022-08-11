@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 using ShapeDiver.SDK;
@@ -19,9 +15,9 @@ namespace DotNetSdkSampleConsoleApp
         {
             try
             {
-                Console.Write("Enter ShapeDiver access key id: ");
+                Console.Write("Enter ShapeDiver access key id (or username/email): ");
                 string key_id = Console.ReadLine();
-                Console.Write("Enter ShapeDiver access key secret: ");
+                Console.Write("Enter ShapeDiver access key secret (or password): ");
                 string key_secret = Console.ReadLine();
 
                 // create instance of SDK, authenticate
