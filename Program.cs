@@ -24,7 +24,7 @@ namespace DotNetSdkSampleConsoleApp
                 var sdk = new ShapeDiverSDK();
                 await sdk.AuthenticationClient.Authenticate(key_id, key_secret);
                 
-                Console.WriteLine($"IsAuthenticated: {sdk.AuthenticationClient.IsAuthenticated}");
+                Console.WriteLine($"{Environment.NewLine}IsAuthenticated: {sdk.AuthenticationClient.IsAuthenticated}");
 
                 // get user information
                 var user = ( await sdk.PlatformClient.UserApi.Get<UserDto>(sdk.AuthenticationClient.GetUserId()) ).Data;
@@ -40,6 +40,7 @@ namespace DotNetSdkSampleConsoleApp
                 var query = sdk.PlatformClient.ModelApi.CreateQueryBody(10);
                 query.Sorters.Add(new Sorter(SorterType.Created_At, SortOrder.Desc));
                 query.Filters.Add(ModelQuery.Start.Property(m => m.Status).EqualTo(ModelStatusEnum.Done));
+                query.Filters.Add(ModelQuery.Start.Property(m => m.UserId).EqualTo(user.Id));
                 var result = await sdk.PlatformClient.ModelApi.Query(query);
                 var models = result.Data.Result;
 
@@ -61,6 +62,7 @@ namespace DotNetSdkSampleConsoleApp
                 query = sdk.PlatformClient.ModelApi.CreateQueryBody(1);
                 query.Sorters.Add(new Sorter(SorterType.Created_At, SortOrder.Desc));
                 query.Filters.Add(ModelQuery.Start.Property(m => m.Status).EqualTo(ModelStatusEnum.Done));
+                query.Filters.Add(ModelQuery.Start.Property(m => m.UserId).EqualTo(user.Id));
                 query.Filters.Add(ModelQuery.Start.Property(m => m.BackendAccess).EqualTo(true));
                 result = await sdk.PlatformClient.ModelApi.Query(query);
                 models = result.Data.Result;
@@ -91,22 +93,22 @@ namespace DotNetSdkSampleConsoleApp
             }
             catch (GeometryBackendError e)
             {
-                Console.WriteLine($"GeometryBackendError: {e.Message}");
+                Console.WriteLine($"{Environment.NewLine}GeometryBackendError: {e.Message}");
             }
             catch (PlatformBackendError e)
             {
-                Console.WriteLine($"PlatformBackendError: {e.Message}");
+                Console.WriteLine($"{Environment.NewLine}PlatformBackendError: {e.Message}");
             }
             catch (AuthenticationError e)
             {
-                Console.WriteLine($"AuthenticationError: {e.Message}");
+                Console.WriteLine($"{Environment.NewLine}AuthenticationError: {e.Message}");
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error: {e.Message}");
+                Console.WriteLine($"{Environment.NewLine}Error: {e.Message}");
             }
 
-            Console.WriteLine("Press Enter to close...");
+            Console.WriteLine($"{Environment.NewLine}Press Enter to close...");
             Console.ReadLine();
         }
     }
