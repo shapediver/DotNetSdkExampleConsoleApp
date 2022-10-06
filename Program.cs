@@ -27,7 +27,7 @@ namespace DotNetSdkSampleConsoleApp
                 Console.WriteLine($"{Environment.NewLine}IsAuthenticated: {sdk.AuthenticationClient.IsAuthenticated}");
 
                 // get user information
-                var user = ( await sdk.PlatformClient.UserApi.Get<UserDto>(sdk.AuthenticationClient.GetUserId()) ).Data;
+                var user = ( await sdk.PlatformClient.UserApi.Get<UserDto>(sdk.AuthenticationClient.GetUserId(), UserGetEmbeddableFields.Used_Credits) ).Data;
 
                 Console.WriteLine();
                 Console.WriteLine($"User Id: {user.Id}");
@@ -35,6 +35,28 @@ namespace DotNetSdkSampleConsoleApp
                 Console.WriteLine($"FirstName: {user.FirstName}");
                 Console.WriteLine($"LastName: {user.LastName}");
                 Console.WriteLine($"Email: {user.Email}");
+                Console.WriteLine($"Credits used this month: {user.UsedCredits.UsedCreditsCurrentMonth}");
+
+                // get detailed information about usage in the past days
+                int numDays = 5;
+                Console.WriteLine();
+                Console.WriteLine($"Usage of exports and embedded sessions in the past {numDays} days:");
+                long unixTimeNow = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
+                long unixTimeTenDaysAgo = unixTimeNow - (numDays+1) * 86400;
+                var analyticsQuery = sdk.PlatformClient.UserAnalyticsApi.CreateQueryBody();
+                analyticsQuery.Filters.Add(UserAnalyticsQuery.Start.Property(d => d.TimestampType).EqualTo(AnalyticsTimestampTypeEnum.Day));
+                analyticsQuery.Filters.Add(UserAnalyticsQuery.Start.Property(d => d.TimestampDate).GreaterOrEqualTo(unixTimeTenDaysAgo));
+                analyticsQuery.Filters.Add(UserAnalyticsQuery.Start.Property(d => d.UserId).EqualTo(user.Id));
+                var analyticsResult = await sdk.PlatformClient.UserAnalyticsApi.Query(analyticsQuery);
+                foreach (var dailyStats in analyticsResult.Data.Result)
+                {
+                    Console.WriteLine($"Exports on {dailyStats.Timestamp}: {dailyStats.Data.Export.Sum}");
+                    Console.WriteLine($"Credits for embedded sessions on {dailyStats.Timestamp}: {dailyStats.Data.Embedded.BillableCount}");
+                }
+                if (analyticsResult.Data.Result.Count == 0)
+                {
+                    Console.WriteLine("No aggregated analytics found.");
+                }
 
                 // get latest 10 published models
                 var query = sdk.PlatformClient.ModelApi.CreateQueryBody(10);
