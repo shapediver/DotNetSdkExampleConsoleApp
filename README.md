@@ -1,5 +1,5 @@
 # DotNetSdkSampleConsoleApp
-Sample console application using the ShapeDiver .NET SDK
+Sample console application using the [ShapeDiver .NET SDK](https://www.nuget.org/packages?q=shapediver).
 
 # How to get support
 
