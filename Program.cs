@@ -44,9 +44,9 @@ namespace DotNetSdkSampleConsoleApp
                 long unixTimeNow = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
                 long unixTimeTenDaysAgo = unixTimeNow - (numDays+1) * 86400;
                 var analyticsQuery = sdk.PlatformClient.UserAnalyticsApi.CreateQueryBody();
-                analyticsQuery.Filters.Add(UserAnalyticsQuery.Start.Property(d => d.TimestampType).EqualTo(AnalyticsTimestampTypeEnum.Day));
-                analyticsQuery.Filters.Add(UserAnalyticsQuery.Start.Property(d => d.TimestampDate).GreaterOrEqualTo(unixTimeTenDaysAgo));
-                analyticsQuery.Filters.Add(UserAnalyticsQuery.Start.Property(d => d.UserId).EqualTo(user.Id));
+                analyticsQuery.AddFilter(ex => ex.Property(d => d.TimestampType).EqualTo(AnalyticsTimestampTypeEnum.Day));
+                analyticsQuery.AddFilter(ex => ex.Property(d => d.TimestampDate).GreaterOrEqualTo(unixTimeTenDaysAgo));
+                analyticsQuery.AddFilter(ex => ex.Property(d => d.UserId).EqualTo(user.Id));
                 var analyticsResult = await sdk.PlatformClient.UserAnalyticsApi.Query(analyticsQuery);
                 foreach (var dailyStats in analyticsResult.Data.Result)
                 {
@@ -61,8 +61,8 @@ namespace DotNetSdkSampleConsoleApp
                 // get latest 10 published models
                 var query = sdk.PlatformClient.ModelApi.CreateQueryBody(10);
                 query.Sorters.Add(new Sorter(SorterType.Created_At, SortOrder.Desc));
-                query.Filters.Add(ModelQuery.Start.Property(m => m.Status).EqualTo(ModelStatusEnum.Done));
-                query.Filters.Add(ModelQuery.Start.Property(m => m.UserId).EqualTo(user.Id));
+                query.AddFilter(ex => ex.Property(m => m.Status).EqualTo(ModelStatusEnum.Done));
+                query.AddFilter(ex => ex.Property(m => m.UserId).EqualTo(user.Id));
                 var result = await sdk.PlatformClient.ModelApi.Query(query);
                 var models = result.Data.Result;
 
@@ -83,9 +83,9 @@ namespace DotNetSdkSampleConsoleApp
                 // get latest model which allows backend access
                 query = sdk.PlatformClient.ModelApi.CreateQueryBody(1);
                 query.Sorters.Add(new Sorter(SorterType.Created_At, SortOrder.Desc));
-                query.Filters.Add(ModelQuery.Start.Property(m => m.Status).EqualTo(ModelStatusEnum.Done));
-                query.Filters.Add(ModelQuery.Start.Property(m => m.UserId).EqualTo(user.Id));
-                query.Filters.Add(ModelQuery.Start.Property(m => m.BackendAccess).EqualTo(true));
+                query.AddFilter(ex => ex.Property(m => m.Status).EqualTo(ModelStatusEnum.Done));
+                query.AddFilter(ex => ex.Property(m => m.UserId).EqualTo(user.Id));
+                query.AddFilter(ex => ex.Property(m => m.BackendAccess).EqualTo(true));
                 result = await sdk.PlatformClient.ModelApi.Query(query);
                 models = result.Data.Result;
 
