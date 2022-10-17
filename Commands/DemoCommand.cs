@@ -124,10 +124,21 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     // get parameters of latest model
                     var context = await sdk.GeometryBackendClient.GetSessionContext(models[0].Id, sdk.PlatformClient);
                     Console.WriteLine();
-                    Console.WriteLine("Parameters of latest published model which allows backend access:");
+                    Console.WriteLine("Parameters and outputs of latest published model which allows backend access:");
+                    Console.WriteLine("Parameters:");
                     foreach (var param in context.ModelData.Parameters)
                     {
                         Console.WriteLine($"\tId: {param.Key}, Name: {param.Value.Name}, Type: {param.Value.Type}");
+                    }
+                    Console.WriteLine("Outputs:");
+                    foreach (var output in context.ModelData.Outputs)
+                    {
+                        Console.WriteLine($"\tId: {output.Key}, Name: {output.Value.Name}, Uid: {output.Value.Uid}");
+                    }
+                    Console.WriteLine("Binary glTF files available:");
+                    foreach (var asset in sdk.GeometryBackendClient.GetAllOutputAssetsForFormat(context, "glb"))
+                    {
+                        Console.WriteLine($"\tOutput Name: {context.ModelData.Outputs[asset.OutputId].Name}, Format: {asset.Format}, Size: {asset.Size}");
                     }
                 }
 
