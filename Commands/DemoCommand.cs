@@ -35,7 +35,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 if (String.IsNullOrEmpty(KeySecret))
                 {
                     Console.Write("Enter ShapeDiver access key secret (or password): ");
-                    string KeySecret = Console.ReadLine();
+                    KeySecret = Console.ReadLine();
                 }
 
                 // create instance of SDK, authenticate
@@ -104,6 +104,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 query.AddFilter(ex => ex.Property(m => m.Status).EqualTo(ModelStatusEnum.Done));
                 query.AddFilter(ex => ex.Property(m => m.UserId).EqualTo(user.Id));
                 query.AddFilter(ex => ex.Property(m => m.BackendAccess).EqualTo(true));
+                query.AddFilter(ex => ex.Property(m => m.DeletedAt).IsNull());
                 result = await sdk.PlatformClient.ModelApi.Query(query);
                 models = result.Data.Result;
 
