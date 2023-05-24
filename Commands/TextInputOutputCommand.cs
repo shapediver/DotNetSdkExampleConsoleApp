@@ -20,15 +20,17 @@ namespace DotNetSdkSampleConsoleApp.Commands
     /// Demo command calling a ShapeDiver model that has text inputs and outputs. 
     /// 
     /// How to use this: 
-    /// (1) Upload TextInputOutput.ghx (see directory "Grasshopper") to your ShapeDiver account
+    /// (1) Upload TextInputOutput.ghx (see directory "Grasshopper")
+    ///     https://www.shapediver.com/app/m/upload
     /// (2) Enable backend access for the model
-    /// (3) Copy the backend ticket and Model viewl URL from the "Developers" tab
+    ///     https://help.shapediver.com/doc/enable-backend-access
+    /// (3) Copy the backend ticket and Model view URL from the "Developers" tab
     /// (4) Use them when calling this command
     /// 
     /// The Grasshopper model "TextInputOutput.ghx" has a text input parameter for strings up to
     /// 10k characters, and a file input parameter for longer strings.
     /// </summary>
-    [Verb("text-io", isDefault: false, HelpText = "Demo calling a ShapeDiver model with text input and output")]
+    [Verb("text-io-demo", isDefault: false, HelpText = "Demo calling a ShapeDiver model with text input and output")]
 
     class TextInputOutputCommand : ICommand
     {
@@ -73,15 +75,15 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 var sdk = new ShapeDiverSDK();
 
                 // Create a session based context using the given backend ticket and model view URL. 
-                // Note: In case the model requires token authorization, please extend this call to pass a token creator. 
+                // Note: In case the model requires token authorization, please extend this call and pass a token creator. 
                 Console.Write("Creating session ... ");
                 var stopWatch = Stopwatch.StartNew();
                 var context = await sdk.GeometryBackendClient.GetSessionContext(BackendTicket, ModelViewUrl, new List<TokenScopeEnum>() { TokenScopeEnum.GroupView });
                 Console.WriteLine($"done ({stopWatch.ElapsedMilliseconds}ms)");
             
                 // Identify text input parameters
-                // textParameter is used for rather short input strings 
-                // textFileParameter is used for longer input strings
+                // - textParameter is used for rather short input strings 
+                // - textFileParameter is used for longer input strings
                 // The Grasshopper model uses data from either one of them.
 
                 var textParameter = context.ModelData.Parameters.Values.Where(p => p.Type == ParameterTypeEnum.String).FirstOrDefault();

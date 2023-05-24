@@ -15,7 +15,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
     /// Demo command showing basic usage of the SDK using 
     /// <see cref="https://help.shapediver.com/doc/platform-api-access-keys">Platform API access keys</see>. 
     /// </summary>
-    [Verb("demo", isDefault: false, HelpText = "Demo using Platform API access keys")]
+    [Verb("access-key-demo", isDefault: false, HelpText = "Demo using Platform API access keys")]
 
     class DemoCommand : ICommand
     {
