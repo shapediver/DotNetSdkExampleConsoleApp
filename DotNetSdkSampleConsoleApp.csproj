@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\TextInputOutputCommand.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="Commands\DemoCommand.cs" />
     <Compile Include="Program.cs" />
@@ -51,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommandLineParser">
@@ -60,7 +62,7 @@
       <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="ShapeDiver.SDK">
-      <Version>1.11.6</Version>
+      <Version>1.15.0-beta</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

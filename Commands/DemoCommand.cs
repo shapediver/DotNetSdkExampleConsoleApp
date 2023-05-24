@@ -7,13 +7,15 @@ using ShapeDiver.SDK.PlatformBackend;
 using ShapeDiver.SDK.PlatformBackend.DTO;
 using ShapeDiver.SDK.GeometryBackend;
 
-using DotNetSdkSampleConsoleApp;
-using CommandLine.Text;
 using CommandLine;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
-    [Verb("demo", isDefault: true, HelpText = "A little demo")]
+    /// <summary>
+    /// Demo command showing basic usage of the SDK using 
+    /// <see cref="https://help.shapediver.com/doc/platform-api-access-keys">Platform API access keys</see>. 
+    /// </summary>
+    [Verb("demo", isDefault: false, HelpText = "Demo using Platform API access keys")]
 
     class DemoCommand : ICommand
     {

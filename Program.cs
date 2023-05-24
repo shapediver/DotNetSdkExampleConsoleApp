@@ -1,12 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-using ShapeDiver.SDK;
-using ShapeDiver.SDK.Authentication;
-using ShapeDiver.SDK.PlatformBackend;
-using ShapeDiver.SDK.PlatformBackend.DTO;
-using ShapeDiver.SDK.GeometryBackend;
-using CommandLine;
+﻿using CommandLine;
 using DotNetSdkSampleConsoleApp.Commands;
 
 namespace DotNetSdkSampleConsoleApp
@@ -15,8 +7,12 @@ namespace DotNetSdkSampleConsoleApp
     {
         static void Main(string[] args)
         {
-            Parser.Default.ParseArguments<DemoCommand, object>(args)
-                .WithParsed<ICommand>(t => t.Execute().Wait());
+            //Parser.Default.ParseArguments<DemoCommand, object>(args)
+            //    .WithParsed<ICommand>(t => t.Execute().Wait());
+            Parser.Default.ParseArguments<DemoCommand, TextInputOutputCommand>(args)
+                .WithParsed<DemoCommand>(t => t.Execute().Wait())
+                .WithParsed<TextInputOutputCommand>(t => t.Execute().Wait());
+
         }
     }
 }
