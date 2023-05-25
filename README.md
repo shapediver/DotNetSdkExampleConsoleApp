@@ -48,7 +48,7 @@ Copyright ©  2023
 
 This command shows how to use the SDK for ShapeDiver models that support the input and output of text. 
 The input and output strings can be large, up to the limit defined by your [ShapeDiver subscription](https://www.shapediver.com/pricing). 
-Please upload the corresponding [Grasshopper model](Grasshopper/TextInputOutputCommand.ghx) using your ShapeDiver account for testing. 
+Please upload the corresponding [Grasshopper model](Grasshopper/TextInputOutput.ghx) using your ShapeDiver account for testing. 
 You will need a _backend ticket_ and the _Model view URL_ of your model, both available on the _Developers_ tab when viewing your model on the [ShapeDiver Platform](https://help.shapediver.com/doc/online-platform).
 
 ### Usage
