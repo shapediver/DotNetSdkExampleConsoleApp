@@ -17,14 +17,14 @@ namespace DotNetSdkSampleConsoleApp.Commands
   
     class BaseCommand
     {
-        [Option('i', "key_id")]
+        [Option('i', "key_id", HelpText = "ShapeDiver access key id")]
         public string KeyId { get; set; }
 
-        [Option('s', "key_secret")]
+        [Option('s', "key_secret", HelpText = "ShapeDiver access key secret")]
         public string KeySecret { get; set; }
 
         /// <summary>
-        /// Get an authenticated instance of the SDK
+        /// Get an authenticated instance of the SDK. 
         /// </summary>
         /// <returns></returns>
         protected async Task<IShapeDiverSDK> GetAuthenticatedSDK()

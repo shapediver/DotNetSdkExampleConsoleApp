@@ -9,9 +9,10 @@ namespace DotNetSdkSampleConsoleApp
         {
             //Parser.Default.ParseArguments<DemoCommand, object>(args)
             //    .WithParsed<ICommand>(t => t.Execute().Wait());
-            Parser.Default.ParseArguments<DemoCommand, TextInputOutputCommand>(args)
+            Parser.Default.ParseArguments<DemoCommand, TextInputOutputCommand, UploadCommand>(args)
                 .WithParsed<DemoCommand>(t => t.Execute().Wait())
-                .WithParsed<TextInputOutputCommand>(t => t.Execute().Wait());
+                .WithParsed<TextInputOutputCommand>(t => t.Execute().Wait())
+                .WithParsed<UploadCommand>(t => t.Execute().Wait());
 
         }
     }
