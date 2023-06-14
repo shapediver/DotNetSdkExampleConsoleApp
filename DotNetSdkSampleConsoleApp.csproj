@@ -37,9 +37,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\DemoCommand.cs" />
     <Compile Include="Commands\TextInputOutputCommand.cs" />
     <Compile Include="ICommand.cs" />
-    <Compile Include="Commands\DemoCommand.cs" />
+    <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

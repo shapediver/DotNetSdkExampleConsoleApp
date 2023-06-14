@@ -17,33 +17,14 @@ namespace DotNetSdkSampleConsoleApp.Commands
     /// </summary>
     [Verb("access-key-demo", isDefault: false, HelpText = "Demo using Platform API access keys")]
 
-    class DemoCommand : ICommand
+    class DemoCommand : BaseCommand, ICommand
     {
-        [Option('i', "key_id")]
-        public string KeyId { get; set; }
-
-        [Option('s', "key_secret")]
-        public string KeySecret { get; set; }
-
         public async Task Execute()
         {
-            try
+            await WrapExceptions(async () =>
             {
-                if (String.IsNullOrEmpty(KeyId))
-                {
-                    Console.Write("Enter ShapeDiver access key id (or username/email): ");
-                    KeyId = Console.ReadLine();
-                }
-                if (String.IsNullOrEmpty(KeySecret))
-                {
-                    Console.Write("Enter ShapeDiver access key secret (or password): ");
-                    KeySecret = Console.ReadLine();
-                }
-
-                // create instance of SDK, authenticate
-                var sdk = new ShapeDiverSDK();
-                await sdk.AuthenticationClient.Authenticate(KeyId, KeySecret);
-
+                // get authenticated SDK
+                var sdk = await GetAuthenticatedSDK();
                 Console.WriteLine($"{Environment.NewLine}IsAuthenticated: {sdk.AuthenticationClient.IsAuthenticated}");
 
                 // get user information
@@ -143,25 +124,8 @@ namespace DotNetSdkSampleConsoleApp.Commands
                         Console.WriteLine($"\tOutput Name: {context.ModelData.Outputs[asset.OutputId].Name}, Format: {asset.Format}, Size: {asset.Size}");
                     }
                 }
-
-            }
-            catch (GeometryBackendError e)
-            {
-                Console.WriteLine($"{Environment.NewLine}GeometryBackendError: {e.Message}");
-            }
-            catch (PlatformBackendError e)
-            {
-                Console.WriteLine($"{Environment.NewLine}PlatformBackendError: {e.Message}");
-            }
-            catch (AuthenticationError e)
-            {
-                Console.WriteLine($"{Environment.NewLine}AuthenticationError: {e.Message}");
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine($"{Environment.NewLine}Error: {e.Message}");
-            }
-
+            });
+          
             Console.WriteLine($"{Environment.NewLine}Press Enter to close...");
             Console.ReadLine();
         }
