@@ -8,16 +8,15 @@ using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
 using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
 
 using CommandLine;
-using DotNetSdkSampleConsoleApp.Util;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
     /// <summary>
-    /// Command for uploading a Grasshopper model to ShapeDiver. Uses individual SDK calls to show what's happening behind the scences. 
-    /// Compare with <see cref="UploadCommandSimple"/>. 
+    /// Command for uploading a Grasshopper model to ShapeDiver. Uses the simplified create and upload functionality from the SDK. 
+    /// Compare with <see cref="UploadCommand"/>. 
     /// </summary>
-    [Verb("upload-model", isDefault: false, HelpText = "Upload a Grasshopper model to ShapeDiver")]
-    class UploadCommand : BaseCommand, ICommand
+    [Verb("upload-model-simple", isDefault: false, HelpText = "Upload a Grasshopper model to ShapeDiver")]
+    class UploadCommandSimple : BaseCommand, ICommand
     {
         [Option('f', "filename", HelpText = "Path to Grasshopper model (.gh or .ghx)", Required = true)]
         public string Filename { get; set; }
@@ -56,29 +55,15 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     Title = Title,
                     Filename = fi.Name,
                 };
-                Console.WriteLine($"Create model...");
-                var createResult = await sdk.PlatformClient.ModelApi.Create(createDto);
 
-                // get a context for the model, upload the grasshopper definition
-                var context = await sdk.GeometryBackendClient.GetContext(createResult.Data.Id, sdk.PlatformClient, Scopes);
-                Console.WriteLine($"Upload model...");
-                await sdk.GeometryBackendClient.UploadModel(context, Filename);
+                Console.WriteLine($"Starting model upload and check, please wait...");
+                var context = await sdk.GeometryBackendClient.CreateAndUploadModel(sdk.PlatformClient, createDto, Filename, true);
 
-                // wait for model check
-                var modelDto = await GeometryBackendUtils.WaitForModelCheck(sdk, context);
-
-                if (modelDto.Model.Status == GDTO.ModelStatusEnum.Pending)
+                if (context.ModelData.Model.Status != GDTO.ModelStatusEnum.Confirmed)
                 {
-                    Console.WriteLine($"Model checking requires manual intervention by ShapeDiver, please visit https://shapediver.com/app/library/pending");
-                    Process.Start("https://shapediver.com/app/library/pending");
-                    return;
-                }
-
-                if (modelDto.Model.Status != GDTO.ModelStatusEnum.Confirmed)
-                {
-                    if (!String.IsNullOrEmpty(modelDto.Model.Msg))
+                    if (!String.IsNullOrEmpty(context.ModelData.Model.Msg))
                     {
-                        throw new Exception($"Model checking failed: {modelDto.Model.Msg}");
+                        throw new Exception($"Model checking failed: {context.ModelData.Model.Msg}");
                     }
                     else
                     {
@@ -87,10 +72,8 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 }
 
                 // Update model status on platform and publish it
-                Console.WriteLine($"Publishing confirmed model...");
-                await sdk.PlatformClient.ModelApi.Patch(context.PlatformModelId);
-                await sdk.PlatformClient.ModelApi.Patch(context.PlatformModelId, new PDTO.ModelPatchDto() { Status = PDTO.ModelStatusEnum.Done });
-                Process.Start($"https://shapediver.com/app/m/{createResult.Data.Slug}");
+                Console.WriteLine($"Model upload and check completed.");
+                Process.Start($"https://shapediver.com/app/m/{context.PlatformModelId}");
             });
 
             Console.WriteLine($"{Environment.NewLine}Press Enter to close...");
