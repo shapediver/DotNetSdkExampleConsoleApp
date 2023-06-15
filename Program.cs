@@ -1,5 +1,7 @@
 ﻿using CommandLine;
 using DotNetSdkSampleConsoleApp.Commands;
+using System.Linq;
+using System.Reflection;
 
 namespace DotNetSdkSampleConsoleApp
 {
@@ -7,13 +9,12 @@ namespace DotNetSdkSampleConsoleApp
     {
         static void Main(string[] args)
         {
-            //Parser.Default.ParseArguments<DemoCommand, object>(args)
-            //    .WithParsed<ICommand>(t => t.Execute().Wait());
-            Parser.Default.ParseArguments<DemoCommand, TextInputOutputCommand, UploadCommandVerbose, UploadCommand>(args)
-                .WithParsed<DemoCommand>(t => t.Execute().Wait())
-                .WithParsed<TextInputOutputCommand>(t => t.Execute().Wait())
-                .WithParsed<UploadCommandVerbose>(t => t.Execute().Wait())
-                .WithParsed<UploadCommand>(t => t.Execute().Wait());
+            var types = Assembly.GetAssembly(typeof(Program)).GetTypes()
+                .Where(t => (typeof(ICommand)).IsAssignableFrom(t) && !t.IsInterface)
+                .ToArray();
+
+            Parser.Default.ParseArguments(args, types)
+                .WithParsed<ICommand>(t => t.Execute().Wait());
 
         }
     }
