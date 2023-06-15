@@ -16,7 +16,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
   
     class BaseCommand
     {
-        [Option('k', "key_id", HelpText = "ShapeDiver access key id")]
+        [Option('k', "key_id", HelpText = "ShapeDiver access key id (browser based authentication will be used if not specified)")]
         public string KeyId { get; set; }
 
         [Option('s', "key_secret", HelpText = "ShapeDiver access key secret")]
