@@ -9,10 +9,12 @@ using CommandLine;
 namespace DotNetSdkSampleConsoleApp.Commands
 {
     /// <summary>
-    /// Demo command showing basic usage of the SDK using 
-    /// <see cref="https://help.shapediver.com/doc/platform-api-access-keys">Platform API access keys</see>. 
+    /// Demo command showing basic usage of the SDK. 
+    /// Makes use of 
+    /// <see cref="https://help.shapediver.com/doc/platform-api-access-keys">Platform API access keys</see> 
+    /// for authentication, or browser based authentication. 
     /// </summary>
-    [Verb("access-key-demo", isDefault: false, HelpText = "Demo using Platform API access keys")]
+    [Verb("demo", isDefault: false, HelpText = "Demo using Platform API access keys")]
 
     class DemoCommand : BaseCommand, ICommand
     {
@@ -123,8 +125,6 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 }
             });
           
-            Console.WriteLine($"{Environment.NewLine}Press Enter to close...");
-            Console.ReadLine();
         }
     }
 }

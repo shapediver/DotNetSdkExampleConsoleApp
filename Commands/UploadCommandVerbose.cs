@@ -94,8 +94,6 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 Process.Start($"https://shapediver.com/app/m/{createResult.Data.Slug}");
             });
 
-            Console.WriteLine($"{Environment.NewLine}Press Enter to close...");
-            Console.ReadLine();
         }
     }
 }

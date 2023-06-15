@@ -76,8 +76,6 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 Process.Start($"https://shapediver.com/app/m/{context.PlatformModelId}");
             });
 
-            Console.WriteLine($"{Environment.NewLine}Press Enter to close...");
-            Console.ReadLine();
         }
     }
 }
