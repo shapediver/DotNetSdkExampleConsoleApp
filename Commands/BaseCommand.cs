@@ -16,7 +16,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
   
     class BaseCommand
     {
-        [Option('i', "key_id", HelpText = "ShapeDiver access key id")]
+        [Option('k', "key_id", HelpText = "ShapeDiver access key id")]
         public string KeyId { get; set; }
 
         [Option('s', "key_secret", HelpText = "ShapeDiver access key secret")]
@@ -28,20 +28,6 @@ namespace DotNetSdkSampleConsoleApp.Commands
         /// <returns></returns>
         protected async Task<IShapeDiverSDK> GetAuthenticatedSDK()
         {
-            if (String.IsNullOrEmpty(KeyId))
-            {
-                Console.Write("Enter ShapeDiver access key id (Press Enter to authenticate via browser): ");
-                KeyId = Console.ReadLine();
-            }
-            if (!String.IsNullOrEmpty(KeyId))
-            {
-                if (String.IsNullOrEmpty(KeySecret))
-                {
-                    Console.Write("Enter ShapeDiver access key secret (Press Enter to authenticate via browser): ");
-                    KeySecret = Console.ReadLine();
-                }
-            }
-
             // create instance of SDK, authenticate
             var sdk = new ShapeDiverSDK();
             if (!String.IsNullOrEmpty(KeyId) && !String.IsNullOrEmpty(KeySecret))
