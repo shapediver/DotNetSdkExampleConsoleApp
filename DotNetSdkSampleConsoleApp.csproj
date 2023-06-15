@@ -37,6 +37,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\GetModelCommand.cs" />
     <Compile Include="Commands\UploadCommand.cs" />
     <Compile Include="Commands\UploadCommandVerbose.cs" />
     <Compile Include="Commands\DemoCommand.cs" />
@@ -45,6 +46,7 @@
     <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\PlatformBackendUtils.cs" />
     <Compile Include="Util\GeometryBackendUtils.cs" />
   </ItemGroup>
   <ItemGroup>
