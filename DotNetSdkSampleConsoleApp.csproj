@@ -37,6 +37,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\ListModelsCommand.cs" />
     <Compile Include="Commands\GetModelCommand.cs" />
     <Compile Include="Commands\UploadCommand.cs" />
     <Compile Include="Commands\UploadCommandVerbose.cs" />
