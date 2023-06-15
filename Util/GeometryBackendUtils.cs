@@ -12,10 +12,15 @@ using System.Threading.Tasks;
 
 namespace DotNetSdkSampleConsoleApp.Util
 {
+    /// <summary>
+    /// Utility functionality related to the geometry backend API.
+    /// </summary>
     internal static class GeometryBackendUtils
     {
         /// <summary>
-        /// Wait for the model status to become 'confirmed', 'denied', or 'pending'
+        /// Wait for the model status to become 'confirmed', 'denied', or 'pending'. 
+        /// This functionality is also part of <see cref="GeometryBackendClient.CreateAndUploadModel(IPlatformClient, PDTO.ModelCreateDto, string, bool)"/>. 
+        /// It is included here to provide more feedback to the user. 
         /// </summary>
         /// <param name="sdk"></param>
         /// <param name="context"></param>
@@ -24,7 +29,7 @@ namespace DotNetSdkSampleConsoleApp.Util
         {
             var modelDto = context.ModelData;
 
-            // check current status, must be one of NotUploaded, Uploaded, Pending
+            // check current status, must be one of NotUploaded or Uploaded
             if (modelDto.Model.Status != GDTO.ModelStatusEnum.NotUploaded &&
                 modelDto.Model.Status != GDTO.ModelStatusEnum.Uploaded)
                 return modelDto;
