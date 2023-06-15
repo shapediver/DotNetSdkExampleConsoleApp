@@ -30,7 +30,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
     /// The Grasshopper model "TextInputOutput.ghx" has a text input parameter for strings up to
     /// 10k characters, and a file input parameter for longer strings.
     /// </summary>
-    [Verb("text-io-demo", isDefault: false, HelpText = "Demo calling a ShapeDiver model with text input and output")]
+    [Verb("text-io-demo", isDefault: false, HelpText = "Demo calling a ShapeDiver model with text input and output.")]
 
     class TextInputOutputCommand : ICommand
     {

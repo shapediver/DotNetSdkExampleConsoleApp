@@ -11,6 +11,7 @@ namespace DotNetSdkSampleConsoleApp
         {
             var types = Assembly.GetAssembly(typeof(Program)).GetTypes()
                 .Where(t => (typeof(ICommand)).IsAssignableFrom(t) && !t.IsInterface)
+                .OrderBy(t => t.Name)
                 .ToArray();
 
             Parser.Default.ParseArguments(args, types)

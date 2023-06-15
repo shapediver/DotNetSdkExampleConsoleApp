@@ -15,7 +15,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
     /// Command for uploading a Grasshopper model to ShapeDiver. Uses the CreateAndUploadModel function from the SDK. 
     /// Compare with <see cref="UploadCommandVerbose"/>, which provides more feedback to the user. 
     /// </summary>
-    [Verb("upload-model-simple", isDefault: false, HelpText = "Upload a Grasshopper model to ShapeDiver")]
+    [Verb("upload-model", isDefault: false, HelpText = "Upload a Grasshopper model to ShapeDiver.")]
     class UploadCommand : BaseCommand, ICommand
     {
         [Option('f', "filename", HelpText = "Path to Grasshopper model (.gh or .ghx)", Required = true)]

@@ -14,7 +14,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
     /// <see cref="https://help.shapediver.com/doc/platform-api-access-keys">Platform API access keys</see> 
     /// for authentication, or browser based authentication. 
     /// </summary>
-    [Verb("demo", isDefault: false, HelpText = "Demo using Platform API access keys")]
+    [Verb("demo", isDefault: false, HelpText = "Demo which prints some information about your account.")]
 
     class DemoCommand : BaseCommand, ICommand
     {

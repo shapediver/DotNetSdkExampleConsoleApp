@@ -19,7 +19,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
     /// <summary>
     /// List identifiers of ShapeDiver models from the platform.
     /// </summary>
-    [Verb("list-models", isDefault: false, HelpText = "List ShapeDiver models, sorted by descending date of creation")]
+    [Verb("list-models", isDefault: false, HelpText = "List ShapeDiver models, sorted by descending date of creation.")]
     class ListModelsCommand : BaseCommand, ICommand
     {
         

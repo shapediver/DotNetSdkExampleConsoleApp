@@ -17,7 +17,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
     /// Provides more feedback to the user. 
     /// Compare with <see cref="UploadCommand"/>. 
     /// </summary>
-    [Verb("upload-model", isDefault: false, HelpText = "Upload a Grasshopper model to ShapeDiver")]
+    [Verb("upload-model-verbose", isDefault: false, HelpText = "Upload a Grasshopper model to ShapeDiver (verbose output).")]
     class UploadCommandVerbose : BaseCommand, ICommand
     {
         [Option('f', "filename", HelpText = "Path to Grasshopper model (.gh or .ghx)", Required = true)]
