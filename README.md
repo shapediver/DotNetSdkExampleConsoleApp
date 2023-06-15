@@ -400,11 +400,12 @@ Copyright ©  2023
 ### Examples
 
 ```
-
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe upload-model -f ARRS_improved_materials_R6.ghx
 Starting model upload and check, please wait...
 Model upload and check completed.
-
+```
+(Model opens in browser)
+```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe upload-model-verbose -f ARRS_improved_materials_R6.ghx
 Create model...
 Upload model...
@@ -414,3 +415,4 @@ Maximum allowed computation time: 30 seconds
 Waiting for model check to finish...
 Publishing confirmed model...
 ```
+(Model opens in browser)
