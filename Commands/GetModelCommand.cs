@@ -19,7 +19,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
     /// <summary>
     /// Get information about a ShapeDiver model from the platform.
     /// </summary>
-    [Verb("get-model", isDefault: false, HelpText = "Upload a Grasshopper model to ShapeDiver")]
+    [Verb("get-model", isDefault: false, HelpText = "Get information about a ShapeDiver model")]
     class GetModelCommand : BaseCommand, ICommand
     {
         [Option('i', "identifier", HelpText = "Identifier of the model (slug, model id, or geometry backend model id)", Required = false)]
