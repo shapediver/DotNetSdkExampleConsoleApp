@@ -37,8 +37,8 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\UploadCommandSimple.cs" />
     <Compile Include="Commands\UploadCommand.cs" />
+    <Compile Include="Commands\UploadCommandVerbose.cs" />
     <Compile Include="Commands\DemoCommand.cs" />
     <Compile Include="Commands\TextInputOutputCommand.cs" />
     <Compile Include="ICommand.cs" />
