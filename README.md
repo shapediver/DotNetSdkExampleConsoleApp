@@ -132,6 +132,7 @@ Binary glTF files available:
 
 This command shows how to get information about a model from the 
 [Platform Backend API](https://help.shapediver.com/doc/platform-backend#PlatformBackend-PlatformBackendAPI). 
+The given model identifier can be slug (URL to the model), model id, geometry backend model id, or ticket. 
 
 ### Usage
 
@@ -140,7 +141,7 @@ C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe h
 DotNetSdkSampleConsoleApp 1.0.0.0
 Copyright ©  2023
 
-  -i, --identifier    Identifier of the model (slug, model id, or geometry backend model id)
+  -i, --identifier    Identifier of the model (slug, model id, geometry backend model id, or ticket)
 
   -e, --embed         Request all available embed fields
 

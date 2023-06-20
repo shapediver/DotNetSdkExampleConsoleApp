@@ -22,7 +22,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
     [Verb("get-model", isDefault: false, HelpText = "Get information about a ShapeDiver model.")]
     class GetModelCommand : BaseCommand, ICommand
     {
-        [Option('i', "identifier", HelpText = "Identifier of the model (slug, model id, or geometry backend model id)", Required = false)]
+        [Option('i', "identifier", HelpText = "Identifier of the model (slug, model id, geometry backend model id, or ticket)", Required = false)]
         public string Identifier { get; set; }
 
         [Option('e', "embed", HelpText = "Request all available embed fields")]
@@ -52,6 +52,15 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
                 // get authenticated SDK
                 var sdk = await GetAuthenticatedSDK();
+
+                // in case a ticket was given, try to decrypt it
+                if (Identifier.Length > 100 && Identifier.Split('-').Count() == 2 && Identifier.ToLowerInvariant() == Identifier)
+                {
+                    if (!JsonOutput)
+                        Console.WriteLine($"Looks like a ticket, trying to decrypt it...");
+                    var ticketDecrypted = await sdk.PlatformClient.ModelApi.DecryptTicket(Identifier);
+                    Identifier = ticketDecrypted.Model.Id;
+                }
 
                 // get model call
                 if (!JsonOutput)
