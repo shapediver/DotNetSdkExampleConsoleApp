@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="Commands\ListModelsCommand.cs" />
     <Compile Include="Commands\GetModelCommand.cs" />
+    <Compile Include="Commands\TextInputOutputBatchCommand.cs" />
     <Compile Include="Commands\UploadCommand.cs" />
     <Compile Include="Commands\UploadCommandVerbose.cs" />
     <Compile Include="Commands\DemoCommand.cs" />
