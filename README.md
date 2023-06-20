@@ -374,6 +374,67 @@ Downloading and saving results to export.txt ...done (179ms)
 Closing session ...done (77ms)
 ```
 
+
+## Command [`text-io-batch-demo`](Commands/TextInputOutputBatchCommand.cs)
+
+This command shows how to use the SDK for batch computations using ShapeDiver models. The examples uses a model that supports the input and output of text. 
+The input and output strings can be large, up to the limit defined by your [ShapeDiver subscription](https://www.shapediver.com/pricing). 
+Please upload the corresponding [Grasshopper model](Grasshopper/TextInputOutput.ghx) using your ShapeDiver account for testing. 
+You will need a _backend ticket_ and the _Model view URL_ of your model, both available on the _Developers_ tab when viewing your model on the [ShapeDiver Platform](https://help.shapediver.com/doc/online-platform).
+
+### Usage
+
+```
+
+C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help text-io-batch-demo
+DotNetSdkSampleConsoleApp 1.0.0.0
+Copyright ©  2023
+
+  -t, --backend_ticket
+
+  -u, --model_view_url
+
+  -i, --input_dir         Path to the directory to read input data from
+
+  -o, --output_dir        Path to the directory to write output data to
+
+  --help                  Display this help screen.
+
+  --version               Display version information.
+```
+
+### Example (command line input of options)
+```
+C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe text-io-batch-demo ^
+  --backend_ticket 176129440dedba57391786b24ec2374e176c976a8939cd9a4771270753653a447a1603dcac3e1e1f4b5a86571b686b3c162e032ca6c6f767926f2ecf7cbb27f8824e20d96f3d82d8c3514a61a96c4f0d95c59c3c2803ad8e531f51979123a6d660d97284d2f5ea54f13fe94fac2d47240cc208e20b23ee3-f94c0d435e8c61736cc3832e93273cae ^
+  --model_view_url https://sdr7euc1.eu-central-1.shapediver.com ^
+  --input_dir ../../text-io-batch-demo/in
+  --output_dir ../../text-io-batch-demo/out
+Creating session ... done (1042ms)
+Done/Failed/Total: 1 (0.1 %) / 0 / 696 | Avg time: 693ms | Avg parallelism: 0.90
+Done/Failed/Total: 2 (0.3 %) / 0 / 696 | Avg time: 721ms | Avg parallelism: 1.73
+Done/Failed/Total: 3 (0.4 %) / 0 / 696 | Avg time: 747ms | Avg parallelism: 2.55
+Done/Failed/Total: 4 (0.6 %) / 0 / 696 | Avg time: 772ms | Avg parallelism: 3.33
+Done/Failed/Total: 5 (0.7 %) / 0 / 696 | Avg time: 801ms | Avg parallelism: 3.98
+Done/Failed/Total: 6 (0.9 %) / 0 / 696 | Avg time: 841ms | Avg parallelism: 4.52
+Done/Failed/Total: 7 (1.0 %) / 0 / 696 | Avg time: 872ms | Avg parallelism: 5.32
+Done/Failed/Total: 8 (1.1 %) / 0 / 696 | Avg time: 903ms | Avg parallelism: 5.96
+Done/Failed/Total: 9 (1.3 %) / 0 / 696 | Avg time: 933ms | Avg parallelism: 6.66
+Done/Failed/Total: 10 (1.4 %) / 0 / 696 | Avg time: 959ms | Avg parallelism: 7.50
+
+...
+
+Done/Failed/Total: 690 (99.1 %) / 0 / 696 | Avg time: 1212ms | Avg parallelism: 9.67
+Done/Failed/Total: 691 (99.3 %) / 0 / 696 | Avg time: 1212ms | Avg parallelism: 9.67
+Done/Failed/Total: 692 (99.4 %) / 0 / 696 | Avg time: 1212ms | Avg parallelism: 9.65
+Done/Failed/Total: 693 (99.6 %) / 0 / 696 | Avg time: 1212ms | Avg parallelism: 9.65
+Done/Failed/Total: 694 (99.7 %) / 0 / 696 | Avg time: 1211ms | Avg parallelism: 9.65
+Done/Failed/Total: 695 (99.9 %) / 0 / 696 | Avg time: 1211ms | Avg parallelism: 9.65
+Done/Failed/Total: 696 (100.0 %) / 0 / 696 | Avg time: 1211ms | Avg parallelism: 9.65
+Closing session ...done (88436ms)
+```
+
+
 ## Commands [`upload-model`](Commands/UploadCommand.cs) and [`upload-model-verbose`](Commands/UploadCommandVerbose.cs)
 
 This command shows how to upload and publish a Grasshopper model to ShapeDiver.
