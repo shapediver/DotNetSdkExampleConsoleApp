@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using System.Linq;
+using System.Diagnostics;
 
 using ShapeDiver.SDK;
 using ShapeDiver.SDK.Authentication;
 using ShapeDiver.SDK.PlatformBackend;
 using ShapeDiver.SDK.GeometryBackend;
+using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
+using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
 
 using CommandLine;
-using System.Collections.Generic;
-using ShapeDiver.SDK.GeometryBackend.DTO;
-using System.IO;
-using System.Text;
-using System.Linq;
-using System.Diagnostics;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -32,13 +33,16 @@ namespace DotNetSdkSampleConsoleApp.Commands
     /// </summary>
     [Verb("text-io-demo", isDefault: false, HelpText = "Demo calling a ShapeDiver model with text input and output.")]
 
-    class TextInputOutputCommand : ICommand
+    class TextInputOutputCommand : BaseCommand, ICommand
     {
-        [Option('t', "backend_ticket")]
+        [Option('t', "backend_ticket", HelpText = "Provide backend_ticket AND model_view_url, OR an identifier")]
         public string BackendTicket { get; set; }
 
-        [Option('u', "model_view_url")]
+        [Option('u', "model_view_url", HelpText = "Provide backend_ticket AND model_view_url, OR an identifier")]
         public string ModelViewUrl { get; set; }
+
+        [Option('m', "model", HelpText = "Identifier for the model (slug, url or id). Provide and identifier, OR backend_ticket AND model_view_url. When using an identifier, also specify key_id and key_secret or use browser based authentication.")]
+        public string IdOrSlug { get; set; }
 
         [Option('i', "input_file")]
         public string InputFileName { get; set; }
@@ -51,16 +55,29 @@ namespace DotNetSdkSampleConsoleApp.Commands
             try
             {
                 // validate input
-                if (String.IsNullOrEmpty(BackendTicket))
+                if (String.IsNullOrEmpty(IdOrSlug) && (String.IsNullOrEmpty(BackendTicket) || String.IsNullOrEmpty(ModelViewUrl)))
                 {
-                    Console.Write("Enter backend ticket: ");
+                    Console.Write("Enter slug or id (press Enter to specify backend ticket and model view URL instead): ");
                     BackendTicket = ReadLine();
                 }
-                if (String.IsNullOrEmpty(ModelViewUrl))
+                if (String.IsNullOrEmpty(IdOrSlug))
                 {
-                    Console.Write("Enter model view URL: ");
-                    ModelViewUrl = Console.ReadLine();
+                    if (String.IsNullOrEmpty(BackendTicket))
+                    {
+                        Console.Write("Enter backend ticket: ");
+                        BackendTicket = ReadLine();
+                    }
+                    if (String.IsNullOrEmpty(ModelViewUrl))
+                    {
+                        Console.Write("Enter model view URL: ");
+                        ModelViewUrl = Console.ReadLine();
+                    }
                 }
+                if (String.IsNullOrEmpty(IdOrSlug) && (String.IsNullOrEmpty(BackendTicket) || String.IsNullOrEmpty(ModelViewUrl)))
+                {
+                    throw new ArgumentException($"Either a model identifier, or backend ticket AND model view URL must be specified");
+                }
+
                 if (String.IsNullOrEmpty(InputFileName))
                 {
                     Console.Write("Input file name: ");
@@ -71,14 +88,20 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     throw new ArgumentException($"File {InputFileName} can not be read");
                 var inputFileData = File.ReadAllText(InputFileName);
 
-                // Create instance of SDK
-                var sdk = new ShapeDiverSDK();
+                // in case the identifier is a url, guess the slug from it
+                if (!String.IsNullOrEmpty(IdOrSlug) && IdOrSlug.StartsWith("https://"))
+                    IdOrSlug = IdOrSlug.Split('/').Last();
+
+                // get SDK, authenticated to the platform in case we need to use the platform API
+                var sdk = String.IsNullOrEmpty(IdOrSlug) ? new ShapeDiverSDK() : await GetAuthenticatedSDK();
 
                 // Create a session based context using the given backend ticket and model view URL. 
                 // Note: In case the model requires token authorization, please extend this call and pass a token creator. 
                 Console.Write("Creating session ... ");
                 var stopWatch = Stopwatch.StartNew();
-                var context = await sdk.GeometryBackendClient.GetSessionContext(BackendTicket, ModelViewUrl, new List<TokenScopeEnum>() { TokenScopeEnum.GroupView });
+                var context = String.IsNullOrEmpty(IdOrSlug) ?
+                    await sdk.GeometryBackendClient.GetSessionContext(BackendTicket, ModelViewUrl, new List<GDTO.TokenScopeEnum>() { GDTO.TokenScopeEnum.GroupView, GDTO.TokenScopeEnum.GroupExport }) :
+                    await sdk.GeometryBackendClient.GetSessionContext(IdOrSlug, sdk.PlatformClient, new List<PDTO.ModelTokenScopeEnum>() { PDTO.ModelTokenScopeEnum.GroupView, PDTO.ModelTokenScopeEnum.GroupExport });
                 Console.WriteLine($"done ({stopWatch.ElapsedMilliseconds}ms)");
             
                 // Identify text input parameters
@@ -86,16 +109,16 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 // - textFileParameter is used for longer input strings
                 // The Grasshopper model uses data from either one of them.
 
-                var textParameter = context.ModelData.Parameters.Values.Where(p => p.Type == ParameterTypeEnum.String).FirstOrDefault();
+                var textParameter = context.ModelData.Parameters.Values.Where(p => p.Type == GDTO.ParameterTypeEnum.String).FirstOrDefault();
                 if (textParameter == null)
                     throw new Exception("Model does not expose a parameter of type 'String'");
 
-                var textFileParameter = context.ModelData.Parameters.Values.Where(p => p.Type == ParameterTypeEnum.File).FirstOrDefault();
+                var textFileParameter = context.ModelData.Parameters.Values.Where(p => p.Type == GDTO.ParameterTypeEnum.File).FirstOrDefault();
                 if (textParameter == null)
                     throw new Exception("Model does not expose a parameter of type 'File'");
 
                 // Identify export to compute
-                var textExport = context.ModelData.Exports.Values.Where(e => e.Type == ExportTypeEnum.Download).FirstOrDefault();
+                var textExport = context.ModelData.Exports.Values.Where(e => e.Type == GDTO.ExportTypeEnum.Download).FirstOrDefault();
                 if (textExport == null)
                     throw new Exception("Model does not expose an export of type 'download'");
 
