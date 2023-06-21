@@ -13,6 +13,8 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Diagnostics;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -49,7 +51,15 @@ namespace DotNetSdkSampleConsoleApp.Commands
         [Option('o', "output_dir", HelpText = "Path to the directory to write output data to")]
         public string OutputDirectory { get; set; }
 
-        List<ComputationTask> Pool = new List<ComputationTask>();
+        int NumTotal;
+
+        int NumDone;
+
+        int NumFailed;
+
+        long TimeSpent;
+
+        Stopwatch Stopwatch;
 
         public async Task Execute()
         {
@@ -82,73 +92,48 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 if (!Directory.Exists(OutputDirectory))
                     throw new ArgumentException($"Directory {OutputDirectory} can not be read");
 
-                var inputFileNames = Directory.GetFiles(InputDirectory);
-                
                 // Create instance of SDK
                 var sdk = new ShapeDiverSDK();
 
                 // Create a session based context using the given backend ticket and model view URL. 
                 // Note: In case the model requires token authorization, please extend this call and pass a token creator. 
                 Console.Write("Creating session ... ");
-                var stopWatch = Stopwatch.StartNew();
                 var context = await sdk.GeometryBackendClient.GetSessionContext(BackendTicket, ModelViewUrl, new List<TokenScopeEnum>() { TokenScopeEnum.GroupView });
-                Console.WriteLine($"done ({stopWatch.ElapsedMilliseconds}ms)");
+                Console.WriteLine($"done.");
 
-                // show some statistics
-                int numTotal = inputFileNames.Count();
-                int numDone = 0;
-                int numFailed = 0;
-                long timeSpent = 0;
+                // Initialize queue of input files to be processed
+                var inputFileNamesQueue = new ConcurrentQueue<string>(Directory.GetFiles(InputDirectory));
+                
+                // Initialize data for showing statistics
+                Stopwatch = Stopwatch.StartNew();
+                NumTotal = inputFileNamesQueue.Count;
 
-                // run computation(s)
-                var taskStopWatch = Stopwatch.StartNew();
-                var iter = inputFileNames.GetEnumerator();
+
+                // start parallel computations
+                List<Task> Tasklist = new List<Task>();
+                for (int i = 0; i < Math.Min(10, NumTotal); i++)
+                {
+                    Tasklist.Add(StartNextComputation(inputFileNamesQueue, context));
+                }
+                
+                // wait for queue to become empty
                 while (true)
                 {
-                    while (Pool.Count < 10)
+                    if (Tasklist.Where(t => !(t.IsCompleted || t.IsCanceled || t.IsFaulted)).Any())
                     {
-                        if (!iter.MoveNext())
-                            break;
-                        var inputFileName = (string)iter.Current;
-                        var fi = new FileInfo(inputFileName);
-                        var outputFileName = Path.Combine(OutputDirectory, fi.Name);
-
-                        Pool.Add(new ComputationTask(CreateComputationTask(context, inputFileName, outputFileName), fi.Name));
+                        await Task.Delay(1000);
+                        continue;
                     }
-
-                    if (Pool.Count == 0)
-                        break;
-
-                    List<ComputationTask> newPool = new List<ComputationTask>();
-                    foreach (var task in Pool)
-                    {
-                        if (task.Status == TaskStatus.RanToCompletion)
-                        {
-                            numDone++;
-                            timeSpent += task.Processingime;
-                            Console.WriteLine($"Done/Failed/Total: {numDone} ({((double)numDone / numTotal).ToString("P1")}) / {numFailed} / {numTotal} | Avg time: {(timeSpent / numDone).ToString("d")}ms | Avg parallelism: {((float)timeSpent / taskStopWatch.ElapsedMilliseconds).ToString("F2")}");
-                        } 
-                        else if (task.Status == TaskStatus.Faulted)
-                        {
-                            Console.WriteLine($"{task.Name} - error");
-                            numFailed++;
-                            Console.WriteLine($"Done/Failed/Total: {numDone} ({((double)numDone / numTotal).ToString("P1")}) / {numFailed} / {numTotal} | Avg time: {(timeSpent / numDone).ToString("d")}ms | Avg parallelism: {((float)timeSpent / taskStopWatch.ElapsedMilliseconds).ToString("F2")}");
-                        }
-                        else
-                        {
-                            newPool.Add(task);
-                        }
-                    }
-
-                    Pool = newPool;
-
-                    await Task.Delay(10);
+                  
+                    break;
                 }
 
                 // close session
                 Console.Write($"Closing session ...");
                 await context.GeometryBackendClient.CloseSessionContext(context);
-                Console.WriteLine($"done ({stopWatch.ElapsedMilliseconds}ms)");
+                Console.WriteLine($"done");
+
+                Console.WriteLine($"Time spent: {Stopwatch.ElapsedMilliseconds}ms");
             }
             catch (GeometryBackendError e)
             {
@@ -169,6 +154,36 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
             Console.WriteLine($"{Environment.NewLine}Press Enter to close...");
             Console.ReadLine();
+        }
+
+        private async Task StartNextComputation(ConcurrentQueue<string> inputFileNamesQueue, IGeometryBackendContext context)
+        {
+            if (!inputFileNamesQueue.TryDequeue(out var inputFileName))
+                return;
+
+            var fi = new FileInfo(inputFileName);
+            var outputFileName = Path.Combine(OutputDirectory, fi.Name);
+
+            var stopWatch = Stopwatch.StartNew();
+            try
+            {
+                await CreateComputationTask(context, inputFileName, outputFileName);
+                Interlocked.Add(ref NumDone, 1);
+                Interlocked.Add(ref TimeSpent, stopWatch.ElapsedMilliseconds);
+                stopWatch.Stop();
+
+                Console.WriteLine($"Done/Failed/Total: {NumDone} ({((double)NumDone / NumTotal).ToString("P1")}) / {NumFailed} / {NumTotal} | Avg time: {(TimeSpent / NumDone).ToString("d")}ms | Avg parallelism: {((float)TimeSpent / Stopwatch.ElapsedMilliseconds).ToString("F2")}");
+            }
+            catch (Exception e)
+            {
+                File.WriteAllText($"{outputFileName}.err", e.ToString());
+
+                Console.WriteLine($"{fi.Name} - error");
+                Interlocked.Add(ref NumFailed, 1);
+                Console.WriteLine($"Done/Failed/Total: {NumDone} ({((double)NumDone / NumTotal).ToString("P1")}) / {NumFailed} / {NumTotal} | Avg time: {(TimeSpent / NumDone).ToString("d")}ms | Avg parallelism: {((float)TimeSpent / Stopwatch.ElapsedMilliseconds).ToString("F2")}");
+            }
+
+            await StartNextComputation(inputFileNamesQueue, context);
         }
 
         private async Task CreateComputationTask(IGeometryBackendContext context, string inputFileName, string outputFileName)
