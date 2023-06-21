@@ -55,12 +55,24 @@ namespace DotNetSdkSampleConsoleApp.Commands
         [Option('o', "output_dir", HelpText = "Path to the directory to write output data to")]
         public string OutputDirectory { get; set; }
 
+        /// <summary>
+        /// Total number of files to be processed
+        /// </summary>
         int NumTotal;
 
+        /// <summary>
+        /// Number of files successfully processed
+        /// </summary>
         int NumDone;
 
+        /// <summary>
+        /// Number of files for which processing failed 
+        /// </summary>
         int NumFailed;
 
+        /// <summary>
+        /// Total processing time spent for successfully processed files
+        /// </summary>
         long TimeSpent;
 
         Stopwatch Stopwatch;
