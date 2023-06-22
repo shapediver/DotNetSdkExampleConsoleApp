@@ -385,25 +385,32 @@ You will need a _backend ticket_ and the _Model view URL_ of your model, both av
 ### Usage
 
 ```
-
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help text-io-batch-demo
 DotNetSdkSampleConsoleApp 1.0.0.0
 Copyright ©  2023
 
-  -t, --backend_ticket
+  -t, --backend_ticket    Provide backend_ticket AND model_view_url, OR an identifier
 
-  -u, --model_view_url
+  -u, --model_view_url    Provide backend_ticket AND model_view_url, OR an identifier
+
+  -m, --model             Identifier for the model (slug, url or id). Provide and identifier, OR backend_ticket AND
+                          model_view_url. When using an identifier, also specify key_id and key_secret or use browser based
+                          authentication.
 
   -i, --input_dir         Path to the directory to read input data from
 
   -o, --output_dir        Path to the directory to write output data to
+
+  -k, --key_id            ShapeDiver access key id (browser based authentication will be used if not specified)
+
+  -s, --key_secret        ShapeDiver access key secret
 
   --help                  Display this help screen.
 
   --version               Display version information.
 ```
 
-### Example (command line input of options)
+### Example (command line input of options, using backend ticket and model view URL)
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe text-io-batch-demo ^
   --backend_ticket 176129440dedba57391786b24ec2374e176c976a8939cd9a4771270753653a447a1603dcac3e1e1f4b5a86571b686b3c162e032ca6c6f767926f2ecf7cbb27f8824e20d96f3d82d8c3514a61a96c4f0d95c59c3c2803ad8e531f51979123a6d660d97284d2f5ea54f13fe94fac2d47240cc208e20b23ee3-f94c0d435e8c61736cc3832e93273cae ^
@@ -432,6 +439,42 @@ Done/Failed/Total: 694 (99.7 %) / 0 / 696 | Avg time: 1211ms | Avg parallelism: 
 Done/Failed/Total: 695 (99.9 %) / 0 / 696 | Avg time: 1211ms | Avg parallelism: 9.65
 Done/Failed/Total: 696 (100.0 %) / 0 / 696 | Avg time: 1211ms | Avg parallelism: 9.65
 Closing session ...done (88436ms)
+```
+
+### Example (command line input of options, using model identifier)
+```
+C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe text-io-batch-demo ^
+  --model textinputoutput-sddev2 ^
+  --input_dir ../../data/text-io-batch-demo/in ^
+  --output_dir ../../data/text-io-batch-demo/out
+Creating session ... done.
+Done/Failed/Total: 1 (4.2 %) / 0 / 24 | Avg time: 701ms | Avg parallelism: 1.00
+Done/Failed/Total: 2 (8.3 %) / 0 / 24 | Avg time: 734ms | Avg parallelism: 1.83
+Done/Failed/Total: 3 (12.5 %) / 0 / 24 | Avg time: 759ms | Avg parallelism: 2.69
+Done/Failed/Total: 4 (16.7 %) / 0 / 24 | Avg time: 798ms | Avg parallelism: 3.34
+Done/Failed/Total: 5 (20.8 %) / 0 / 24 | Avg time: 833ms | Avg parallelism: 4.11
+Done/Failed/Total: 6 (25.0 %) / 0 / 24 | Avg time: 869ms | Avg parallelism: 4.79
+Done/Failed/Total: 7 (29.2 %) / 0 / 24 | Avg time: 896ms | Avg parallelism: 5.71
+Done/Failed/Total: 8 (33.3 %) / 0 / 24 | Avg time: 927ms | Avg parallelism: 6.29
+Done/Failed/Total: 9 (37.5 %) / 0 / 24 | Avg time: 960ms | Avg parallelism: 6.81
+Done/Failed/Total: 10 (41.7 %) / 0 / 24 | Avg time: 996ms | Avg parallelism: 7.33
+Done/Failed/Total: 11 (45.8 %) / 0 / 24 | Avg time: 993ms | Avg parallelism: 6.57
+Done/Failed/Total: 12 (50.0 %) / 0 / 24 | Avg time: 991ms | Avg parallelism: 6.53
+Done/Failed/Total: 13 (54.2 %) / 0 / 24 | Avg time: 982ms | Avg parallelism: 6.75
+Done/Failed/Total: 14 (58.3 %) / 0 / 24 | Avg time: 992ms | Avg parallelism: 7.20
+Done/Failed/Total: 15 (62.5 %) / 0 / 24 | Avg time: 985ms | Avg parallelism: 7.50
+Done/Failed/Total: 16 (66.7 %) / 0 / 24 | Avg time: 990ms | Avg parallelism: 7.82
+Done/Failed/Total: 17 (70.8 %) / 0 / 24 | Avg time: 984ms | Avg parallelism: 8.11
+Done/Failed/Total: 18 (75.0 %) / 0 / 24 | Avg time: 986ms | Avg parallelism: 8.35
+Done/Failed/Total: 19 (79.2 %) / 0 / 24 | Avg time: 984ms | Avg parallelism: 8.43
+Done/Failed/Total: 20 (83.3 %) / 0 / 24 | Avg time: 984ms | Avg parallelism: 8.44
+Done/Failed/Total: 21 (87.5 %) / 0 / 24 | Avg time: 974ms | Avg parallelism: 8.41
+Done/Failed/Total: 22 (91.7 %) / 0 / 24 | Avg time: 955ms | Avg parallelism: 8.42
+Done/Failed/Total: 23 (95.8 %) / 0 / 24 | Avg time: 943ms | Avg parallelism: 8.64
+Done/Failed/Total: 24 (100.0 %) / 0 / 24 | Avg time: 933ms | Avg parallelism: 8.65
+Closing session ...done
+Total processing time: 22398ms
+Elapsed time: 2646ms
 ```
 
 
