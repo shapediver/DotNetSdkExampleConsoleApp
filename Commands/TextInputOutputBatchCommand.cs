@@ -128,11 +128,14 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 // get SDK, authenticated to the platform in case we need to use the platform API
                 var sdk = String.IsNullOrEmpty(IdOrSlug) ? new ShapeDiverSDK() : await GetAuthenticatedSDK();
 
-                // Create a session based context using the given backend ticket and model view URL. 
-                // Note: In case the model requires token authorization, please extend this call and pass a token creator. 
+                // Create a session based context, either
+                // using the given backend ticket and model view URL, or
+                // using the given model identifier (slug, id)
                 Console.Write("Creating session ... ");
                 var context = String.IsNullOrEmpty(IdOrSlug) ?
+                    // Note: In case the model requires token authorization, please extend this call and pass a token creator.
                     await sdk.GeometryBackendClient.GetSessionContext(BackendTicket, ModelViewUrl, new List<GDTO.TokenScopeEnum>() { GDTO.TokenScopeEnum.GroupView, GDTO.TokenScopeEnum.GroupExport }) :
+                    // Note: The authenticated platform client serves as token creator here.
                     await sdk.GeometryBackendClient.GetSessionContext(IdOrSlug, sdk.PlatformClient, new List<PDTO.ModelTokenScopeEnum>() { PDTO.ModelTokenScopeEnum.GroupView, PDTO.ModelTokenScopeEnum.GroupExport });
                 Console.WriteLine($"done.");
 
@@ -143,24 +146,30 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 Stopwatch = Stopwatch.StartNew();
                 NumTotal = inputFileNamesQueue.Count;
 
-
                 // start parallel computations
-                List<Task> Tasklist = new List<Task>();
-                for (int i = 0; i < Math.Min(10, NumTotal); i++)
-                {
-                    Tasklist.Add(StartNextComputation(inputFileNamesQueue, context));
-                }
+                var Taskset = new HashSet<Task>();
                 
                 // wait for queue to become empty
                 while (true)
                 {
-                    if (Tasklist.Where(t => !(t.IsCompleted || t.IsCanceled || t.IsFaulted)).Any())
+                    // start parallel computations
+                    while (Taskset.Count < 10)
                     {
-                        await Task.Delay(1000);
-                        continue;
+                        if (inputFileNamesQueue.TryDequeue(out var inputFileName))
+                            Taskset.Add(StartNextComputation(inputFileName, context));
+                        else
+                            break;
                     }
-                  
-                    break;
+
+                    // wait for a computation to finish
+                    var resolved = await Task.WhenAny(Taskset);
+
+                    // remove resolved task from the set
+                    Taskset.Remove(resolved);
+            
+                    // check if all files have been processed
+                    if (Taskset.Count == 0 && inputFileNamesQueue.IsEmpty)
+                        break;
                 }
 
                 // close session
@@ -168,7 +177,8 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 await context.GeometryBackendClient.CloseSessionContext(context);
                 Console.WriteLine($"done");
 
-                Console.WriteLine($"Time spent: {Stopwatch.ElapsedMilliseconds}ms");
+                Console.WriteLine($"Total processing time: {TimeSpent}ms");
+                Console.WriteLine($"Elapsed time: {Stopwatch.ElapsedMilliseconds}ms");
             }
             catch (GeometryBackendError e)
             {
@@ -191,11 +201,8 @@ namespace DotNetSdkSampleConsoleApp.Commands
             Console.ReadLine();
         }
 
-        private async Task StartNextComputation(ConcurrentQueue<string> inputFileNamesQueue, IGeometryBackendContext context)
+        private async Task StartNextComputation(string inputFileName, IGeometryBackendContext context)
         {
-            if (!inputFileNamesQueue.TryDequeue(out var inputFileName))
-                return;
-
             var fi = new FileInfo(inputFileName);
             var outputFileName = Path.Combine(OutputDirectory, fi.Name);
 
@@ -217,8 +224,6 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 Interlocked.Add(ref NumFailed, 1);
                 Console.WriteLine($"Done/Failed/Total: {NumDone} ({((double)NumDone / NumTotal).ToString("P1")}) / {NumFailed} / {NumTotal} | Avg time: {(TimeSpent / NumDone).ToString("d")}ms | Avg parallelism: {((float)TimeSpent / Stopwatch.ElapsedMilliseconds).ToString("F2")}");
             }
-
-            await StartNextComputation(inputFileNamesQueue, context);
         }
 
         private async Task CreateComputationTask(IGeometryBackendContext context, string inputFileName, string outputFileName)

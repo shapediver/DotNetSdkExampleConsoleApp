@@ -95,12 +95,15 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 // get SDK, authenticated to the platform in case we need to use the platform API
                 var sdk = String.IsNullOrEmpty(IdOrSlug) ? new ShapeDiverSDK() : await GetAuthenticatedSDK();
 
-                // Create a session based context using the given backend ticket and model view URL. 
-                // Note: In case the model requires token authorization, please extend this call and pass a token creator. 
+                // Create a session based context, either
+                // using the given backend ticket and model view URL, or
+                // using the given model identifier (slug, id)
                 Console.Write("Creating session ... ");
                 var stopWatch = Stopwatch.StartNew();
                 var context = String.IsNullOrEmpty(IdOrSlug) ?
+                    // Note: In case the model requires token authorization, please extend this call and pass a token creator.
                     await sdk.GeometryBackendClient.GetSessionContext(BackendTicket, ModelViewUrl, new List<GDTO.TokenScopeEnum>() { GDTO.TokenScopeEnum.GroupView, GDTO.TokenScopeEnum.GroupExport }) :
+                    // Note: The authenticated platform client serves as token creator here.
                     await sdk.GeometryBackendClient.GetSessionContext(IdOrSlug, sdk.PlatformClient, new List<PDTO.ModelTokenScopeEnum>() { PDTO.ModelTokenScopeEnum.GroupView, PDTO.ModelTokenScopeEnum.GroupExport });
                 Console.WriteLine($"done ({stopWatch.ElapsedMilliseconds}ms)");
             
