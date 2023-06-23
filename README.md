@@ -37,6 +37,8 @@ Copyright ©  2023
 
   list-models             List ShapeDiver models, sorted by descending date of creation.
 
+  text-io-batch-demo      Demo using a ShapeDiver model with text input and output for batch processing.
+
   text-io-demo            Demo calling a ShapeDiver model with text input and output.
 
   upload-model            Upload a Grasshopper model to ShapeDiver.
@@ -49,6 +51,14 @@ Copyright ©  2023
 ```
 
 # Commands
+
+  * [`demo`](#command-demo)
+  * [`get-model`](#command-get-model)
+  * [`list-models`](#command-list-models)
+  * [`text-io-batch-demo`](#command-text-io-batch-demo)
+  * [`text-io-demo`](#command-text-io-demo)
+  * [`upload-model`](#command-upload-model)
+  * [`upload-model-verbose`](#command-upload-model-verbose)
 
 
 ## Command [`demo`](Commands/DemoCommand.cs)
