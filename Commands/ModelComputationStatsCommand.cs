@@ -124,7 +124,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
         public double MaxTime { get; private set; }
         public int Count { get; private set; }
 
-        public double AvgTime => MaxTime / Count;
+        public double AvgTime => TotalTime / Count;
 
         public void RegisterComputation(double time)
         {
