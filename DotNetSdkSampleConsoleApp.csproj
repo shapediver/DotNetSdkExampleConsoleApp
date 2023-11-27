@@ -37,6 +37,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\ModelComputationStatsCommand.cs" />
     <Compile Include="Commands\ListModelsCommand.cs" />
     <Compile Include="Commands\GetModelCommand.cs" />
     <Compile Include="Commands\TextInputOutputBatchCommand.cs" />
@@ -63,7 +64,7 @@
       <Version>13.0.3</Version>
     </PackageReference>
     <PackageReference Include="ShapeDiver.SDK">
-      <Version>1.16.0</Version>
+      <Version>1.16.1</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
