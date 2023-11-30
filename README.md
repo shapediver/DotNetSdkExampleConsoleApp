@@ -31,23 +31,25 @@ C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe h
 DotNetSdkSampleConsoleApp 1.0.0.0
 Copyright ©  2023
 
-  demo                    Demo which prints some information about your account.
+  demo                       Demo which prints some information about your account.
 
-  get-model               Get information about a ShapeDiver model.
+  get-model                  Get information about a ShapeDiver model.
 
-  list-models             List ShapeDiver models, sorted by descending date of creation.
+  list-models                List ShapeDiver models, sorted by descending date of creation.
 
-  text-io-batch-demo      Demo using a ShapeDiver model with text input and output for batch processing.
+  model-computation-stats    Fetch data from the log of computations of a ShapeDiver model, display some statistics.
 
-  text-io-demo            Demo calling a ShapeDiver model with text input and output.
+  text-io-batch-demo         Demo using a ShapeDiver model with text input and output for batch processing.
 
-  upload-model            Upload a Grasshopper model to ShapeDiver.
+  text-io-demo               Demo calling a ShapeDiver model with text input and output.
 
-  upload-model-verbose    Upload a Grasshopper model to ShapeDiver (verbose output).
+  upload-model               Upload a Grasshopper model to ShapeDiver.
 
-  help                    Display more information on a specific command.
+  upload-model-verbose       Upload a Grasshopper model to ShapeDiver (verbose output).
 
-  version                 Display version information.
+  help                       Display more information on a specific command.
+
+  version                    Display version information.
 ```
 
 # Commands
