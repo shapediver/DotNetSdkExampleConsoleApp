@@ -64,7 +64,7 @@
       <Version>13.0.3</Version>
     </PackageReference>
     <PackageReference Include="ShapeDiver.SDK">
-      <Version>1.16.1</Version>
+      <Version>1.17.0-beta</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
