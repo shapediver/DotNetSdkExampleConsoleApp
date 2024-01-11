@@ -64,8 +64,16 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     Identifier = ticketDecrypted.Model.Id;
                 }
 
+                // keep a log of message and export it to a file
+                var log = new StringBuilder();
+                Action<string> logMessage = (string message) =>
+                {
+                    Console.WriteLine(message);
+                    log.AppendLine(message);
+                };
+
                 // get model call
-                Console.WriteLine($"Get model information...");
+                logMessage($"Get model information for identifier {Identifier} ...");
                 var model = (await sdk.PlatformClient.ModelApi.Get<PDTO.ModelDto>(Identifier, ModelGetEmbeddableFields.Backend_System)).Data;
                 var token = (await sdk.PlatformClient.TokenApi.Create(model.Id, new List<PDTO.ModelTokenScopeEnum>() { PDTO.ModelTokenScopeEnum.GroupAnalytics }));
 
@@ -83,14 +91,14 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 // keep a dictionary of components using most of the computation time
                 Dictionary<string, ComponentStats> Components = new Dictionary<string, ComponentStats>();
 
-                Console.WriteLine($"Fetch computations from log between {timestampFrom} and {timestampTo} ...");
+                logMessage($"Fetch computations from log between {timestampFrom} and {timestampTo} ...");
                 var response = await gbSdk.Model.QueryComputations(model.GeometryBackendId, timestampFrom, timestampTo, order: order);
 
                 while ( true ) 
                 {
                     if (response.Computations.Count > 0)
                     {
-                        Console.WriteLine($"{response.Computations.First().Timestamp} - {response.Computations.Last().Timestamp}: {response.Computations.Count} computations");
+                        logMessage($"{response.Computations.First().Timestamp} - {response.Computations.Last().Timestamp}: {response.Computations.Count} computations");
                     }
 
                     computations.AddRange(response.Computations);
@@ -115,7 +123,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     {
                         if (response.Computations.Last().Timestamp < long.Parse(timestampFrom))
                         {
-                            Console.WriteLine($"Workaround for timestamp filter bug: stop querying computations.");
+                            logMessage($"Workaround for timestamp filter bug: stop querying computations.");
                             break;
                         }
                     }
@@ -125,12 +133,13 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
                 if (computations.Count == 0)
                 {
-                    Console.WriteLine($"No computations found.");
+                    logMessage($"No computations found.");
                     return;
                 }
 
                 // timestamp of the youngest computation
                 var lastComputationTimestamp = computations.First().Timestamp.ToString();
+                var prefix = $"{model.Slug}--{lastComputationTimestamp}";
 
                 // build a csv file containing the component stats
                 IEnumerable<ComponentStats> componentsOrderedByAvgTimeDesc = Components.Select(c => c.Value).OrderBy(c => c.AvgTime).Reverse();
@@ -141,43 +150,45 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     sb.AppendLine($"{c.Component.Name},{c.Component.Instance},{c.Component.NickName},{N2S(c.AvgTime)},{N2S(c.MaxTime)},{c.Count},{N2S(c.TotalTime)}");
                 }
                 var componentCsv = sb.ToString();
-                var componentCsvFilename = $"components-stats--{model.Slug}--{lastComputationTimestamp}.csv";
-                Console.WriteLine($"{Environment.NewLine}Exported information about {componentsOrderedByAvgTimeDesc.Count()} components sorted by decreasing average computation time to {componentCsvFilename}.");
+                var componentCsvFilename = $"{prefix}--components-stats.csv";
+                logMessage($"{Environment.NewLine}Exported information about {componentsOrderedByAvgTimeDesc.Count()} components sorted by decreasing average computation time to {componentCsvFilename}.");
                 File.WriteAllText(componentCsvFilename, componentCsv);
            
                 // csv file containing the stats for successful computations without exports
-                var computationsCsvFilename = $"computations-stats--{model.Slug}--{lastComputationTimestamp}.csv";
+                var computationsCsvFilename = $"{prefix}--computations-stats.csv";
                 var computationsSelected = computations.Where(c => c.Status == ModelComputationStatusEnum.Success && c.Exports.Count == 0);
                 ExportComputationsSummaryToCsv(computationsCsvFilename, computationsSelected);
-                Console.WriteLine($"{Environment.NewLine}Exported stats of {computationsSelected.Count()} successful computations to {componentCsvFilename}.");
+                logMessage($"{Environment.NewLine}Exported stats of {computationsSelected.Count()} successful computations to {componentCsvFilename}.");
 
                 // csv file containing the stats for successful exports
-                var exportsCsvFilename = $"exports-stats--{model.Slug}--{lastComputationTimestamp}.csv";
+                var exportsCsvFilename = $"{prefix}--exports-stats.csv";
                 computationsSelected = computations.Where(c => c.Status == ModelComputationStatusEnum.Success && c.Exports.Count != 0);
                 ExportComputationsSummaryToCsv(exportsCsvFilename, computationsSelected);
-                Console.WriteLine($"{Environment.NewLine}Exported stats of {computationsSelected.Count()} successful exports to {exportsCsvFilename}.");
+                logMessage($"{Environment.NewLine}Exported stats of {computationsSelected.Count()} successful exports to {exportsCsvFilename}.");
 
                 // csv file containing the stats for failed computations and exports
-                var failedCsvFilename = $"failed-stats--{model.Slug}--{lastComputationTimestamp}.csv";
+                var failedCsvFilename = $"{prefix}--failed-stats.csv";
                 computationsSelected = computations.Where(c => c.Status != ModelComputationStatusEnum.Success);
                 ExportComputationsSummaryToCsv(failedCsvFilename, computationsSelected);
-                Console.WriteLine($"{Environment.NewLine}Exported stats of {computationsSelected.Count()} failed computations and exports to {failedCsvFilename}.");
+                logMessage($"{Environment.NewLine}Exported stats of {computationsSelected.Count()} failed computations and exports to {failedCsvFilename}.");
 
                 // json file containing the stats for all computations
-                var jsonFilename = $"computations-stats--{model.Slug}--{lastComputationTimestamp}.json";
+                var jsonFilename = $"{prefix}--computations-stats.json";
                 File.WriteAllText(jsonFilename, JsonConvert.SerializeObject(computations, Formatting.Indented));
-                Console.WriteLine($"{Environment.NewLine}Exported stats of all computations to {jsonFilename}.");
+                logMessage($"{Environment.NewLine}Exported stats of all computations to {jsonFilename}.");
 
                 // find and report extreme computations
-                Console.WriteLine($"{Environment.NewLine}Summary statistics of successful computations:");
+                logMessage($"{Environment.NewLine}Summary statistics of successful computations:");
                 var successfullComputations = computations.Where(c => c.Status == ModelComputationStatusEnum.Success);
-                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeSolver, "Milliseconds used by Grasshopper solver (time_solver)");
-                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeSolverCollect, "Milliseconds used to collect data after solution (time_solver_collect)");
-                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeStorage, "Milliseconds used to store data (time_storage)");
-                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeProcessing, "Milliseconds used to process the request (time_processing)");
-                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeWait, "Milliseconds the request waited before being processed (time_wait)");
-                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeCompletion, "Milliseconds used to answer the request (time_completion)");
-                PrintSummaryStatistic(successfullComputations, c => c.Stats.SizeAssets, "Size of resulting data in bytes (size_assets)");
+                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeSolver, "Milliseconds used by Grasshopper solver (time_solver)", logMessage);
+                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeSolverCollect, "Milliseconds used to collect data after solution (time_solver_collect)", logMessage);
+                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeStorage, "Milliseconds used to store data (time_storage)", logMessage);
+                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeProcessing, "Milliseconds used to process the request (time_processing)", logMessage);
+                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeWait, "Milliseconds the request waited before being processed (time_wait)", logMessage);
+                PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeCompletion, "Milliseconds used to answer the request (time_completion)", logMessage);
+                PrintSummaryStatistic(successfullComputations, c => c.Stats.SizeAssets, "Size of resulting data in bytes (size_assets)", logMessage);
+
+                File.WriteAllText($"{prefix}--log.txt", log.ToString());
             });
         }
 
@@ -193,7 +204,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
             File.WriteAllText(filename, csv);
         }
 
-        void PrintSummaryStatistic(IEnumerable<GeometryBackendModelComputationDto> computations, Func<GeometryBackendModelComputationDto, int> selector, string description)
+        void PrintSummaryStatistic(IEnumerable<GeometryBackendModelComputationDto> computations, Func<GeometryBackendModelComputationDto, int> selector, string description, Action<string> logMessage)
         {
             var values = computations.Select(c => selector(c)).ToList();
             var min = values.Min();
@@ -203,7 +214,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
             var sortedNumbers = values.OrderBy(n => n).ToList();
             Func<double, string> p = (double d) => N2S(CalculatePercentile(sortedNumbers, d));
 
-            Console.WriteLine($"{description} - Min,Avg,Mag: {min},{N2S(avg)},{max} - p01,p05,p10,p25,p50,p75,p90,p95,p99: {p(0.01)},{p(0.05)},{p(0.1)},{p(0.25)},{p(0.5)},{p(0.75)},{p(0.9)},{p(0.95)},{p(0.99)}");
+            logMessage($"{description} - Min,Avg,Mag: {min},{N2S(avg)},{max} - p01,p05,p10,p25,p50,p75,p90,p95,p99: {p(0.01)},{p(0.05)},{p(0.1)},{p(0.25)},{p(0.5)},{p(0.75)},{p(0.9)},{p(0.95)},{p(0.99)}");
         }
 
         string N2S(double n)
