@@ -7,6 +7,7 @@ using ShapeDiver.SDK.PlatformBackend;
 using ShapeDiver.SDK.GeometryBackend;
 
 using CommandLine;
+using ShapeDiver.SDK.Container;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -21,6 +22,15 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
         [Option('s', "key_secret", HelpText = "ShapeDiver access key secret")]
         public string KeySecret { get; set; }
+
+        /// <summary>
+        /// Get an unauthenticated instance of the SDK.
+        /// </summary>
+        /// <returns></returns>
+        protected IShapeDiverSDK GetSDK()
+        {
+            return new ShapeDiverSDK();
+        }
 
         /// <summary>
         /// Get an authenticated instance of the SDK. 
