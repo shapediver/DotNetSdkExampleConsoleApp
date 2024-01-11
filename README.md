@@ -29,7 +29,7 @@ Build the console application using Visual Studio. Run the executable without op
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help
 DotNetSdkSampleConsoleApp 1.0.0.0
-Copyright ©  2023
+Copyright ©  2024
 
   demo                       Demo which prints some information about your account.
 
@@ -37,7 +37,7 @@ Copyright ©  2023
 
   list-models                List ShapeDiver models, sorted by descending date of creation.
 
-  model-computation-stats    Fetch data from the log of computations of a ShapeDiver model, display some statistics.
+  model-computation-stats    Fetch, display and export data from the log of computations of a ShapeDiver model.
 
   text-io-batch-demo         Demo using a ShapeDiver model with text input and output for batch processing.
 
@@ -57,6 +57,7 @@ Copyright ©  2023
   * [`demo`](#command-demo)
   * [`get-model`](#command-get-model)
   * [`list-models`](#command-list-models)
+  * [`model-computation-stats`](#command-model-computation-stats)
   * [`text-io-batch-demo`](#command-text-io-batch-demo)
   * [`text-io-demo`](#command-text-io-demo)
   * [`upload-model`](#command-upload-model)
@@ -75,7 +76,7 @@ and the [Geometry Backend API](https://help.shapediver.com/doc/geometry-backend)
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help demo
 DotNetSdkSampleConsoleApp 1.0.0.0
-Copyright ©  2023
+Copyright ©  2024
 
   -k, --key_id
 
@@ -151,7 +152,7 @@ The given model identifier can be slug (URL to the model), model id, geometry ba
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help get-model
 DotNetSdkSampleConsoleApp 1.0.0.0
-Copyright ©  2023
+Copyright ©  2024
 
   -i, --identifier    Identifier of the model (slug, model id, geometry backend model id, or ticket)
 
@@ -293,7 +294,7 @@ This command shows how to list ShapeDiver models using the
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help list-models
 DotNetSdkSampleConsoleApp 1.0.0.0
-Copyright ©  2023
+Copyright ©  2024
 
   -u, --user          Filter models owned by you
 
@@ -333,6 +334,64 @@ Offset for continuing query: Hy2M+4WGkjt0y0ay31r+nw==
 ```
 
 
+## Command [`model-computation-stats`](Commands/ModelComputationStatsCommand.cs)
+
+Fetch, display and export data from the log of computations of a ShapeDiver model.
+[Geometry Backend API - Get model computation statistics](https://sdr7euc1.eu-central-1.shapediver.com/api/v2/docs/#/model/get_api_v2_model__modelId__computations). 
+
+### Usage
+
+```
+C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe model-computation-stats --help
+DotNetSdkSampleConsoleApp 1.0.0.0
+Copyright ©  2024
+
+  -i, --identifier    Identifier of the model (slug, model id, geometry backend model id, or ticket)
+
+  -d, --days          Number of past days to inspect computation stats for
+
+  -k, --key_id        ShapeDiver access key id (browser based authentication will be used if not specified)
+
+  -s, --key_secret    ShapeDiver access key secret
+
+  --help              Display this help screen.
+
+  --version           Display version information.
+```
+
+### Examples
+
+```
+C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe model-computation-stats -i https://www.shapediver.com/app/m/SUPPRESSED -d 2
+Get model information...
+Fetch computations from log between 20240109114111105 and 20240111114111105 ...
+20240111113751950 - 20240111104536290: 74 computations
+20240111104511320 - 20240111101730704: 77 computations
+...
+20240109125814710 - 20240109121308124: 74 computations
+20240109121204492 - 20240109110800916: 74 computations
+
+Exported information about 324 components sorted by decreasing average computation time to components-stats--{SUPPRESSED}--20240111113751950.csv.
+
+Exported stats of 3593 successful computations to components-stats--{SUPPRESSED}--20240111113751950.csv.
+
+Exported stats of 268 successful exports to exports-stats--{SUPPRESSED}--20240111113751950.csv.
+
+Exported stats of 2 failed computations and exports to failed-stats--{SUPPRESSED}--20240111113751950.csv.
+
+Exported stats of all computations to computations-stats--{SUPPRESSED}--20240111113751950.json.
+
+Summary statistics of successful computations:
+Milliseconds used by Grasshopper solver (time_solver) - Min,Avg,Mag: 31,5803,35577 - p01,p05,p10,p25,p50,p75,p90,p95,p99: 46,109,1813,3051,6071,7479,9653,11687,15579
+Milliseconds used to collect data after solution (time_solver_collect) - Min,Avg,Mag: 0,363,70139 - p01,p05,p10,p25,p50,p75,p90,p95,p99: 0,0,0,31,77,532,720,930,3912
+Milliseconds used to store data (time_storage) - Min,Avg,Mag: 0,484,31963 - p01,p05,p10,p25,p50,p75,p90,p95,p99: 0,0,0,155,203,359,484,1126,6280
+Milliseconds used to process the request (time_processing) - Min,Avg,Mag: 80,6793,107566 - p01,p05,p10,p25,p50,p75,p90,p95,p99: 179,940,2274,3794,6624,8457,10911,13480,22218
+Milliseconds the request waited before being processed (time_wait) - Min,Avg,Mag: 5,96,9966 - p01,p05,p10,p25,p50,p75,p90,p95,p99: 8,9,10,11,14,18,26,37,3829
+Milliseconds used to answer the request (time_completion) - Min,Avg,Mag: 95,6889,107576 - p01,p05,p10,p25,p50,p75,p90,p95,p99: 195,951,2300,3841,6675,8564,11259,13830,22410
+Size of resulting data in bytes (size_assets) - Min,Avg,Mag: 0,2544323,160774684 - p01,p05,p10,p25,p50,p75,p90,p95,p99: 0,0,0,520052,871936,1987512,2586160,2827340,70641924
+```
+
+
 ## Command [`text-io-demo`](Commands/TextInputOutputCommand.cs)
 
 This command shows how to use the SDK for ShapeDiver models that support the input and output of text. 
@@ -345,7 +404,7 @@ You will need a _backend ticket_ and the _Model view URL_ of your model, both av
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help text-io-demo
 DotNetSdkSampleConsoleApp 1.0.0.0
-Copyright ©  2023
+Copyright ©  2024
 
   -t, --backend_ticket
 
@@ -399,7 +458,7 @@ You will need a _backend ticket_ and the _Model view URL_ of your model, both av
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help text-io-batch-demo
 DotNetSdkSampleConsoleApp 1.0.0.0
-Copyright ©  2023
+Copyright ©  2024
 
   -t, --backend_ticket    Provide backend_ticket AND model_view_url, OR an identifier
 
@@ -499,7 +558,7 @@ This command shows how to upload and publish a Grasshopper model to ShapeDiver.
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help upload-model
 DotNetSdkSampleConsoleApp 1.0.0.0
-Copyright ©  2023
+Copyright ©  2024
 
   -f, --filename      Required. Path to Grasshopper model (.gh or .ghx)
 

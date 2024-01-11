@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ShapeDiver GmbH")]
 [assembly: AssemblyProduct("DotNetSdkSampleConsoleApp")]
-[assembly: AssemblyCopyright("Copyright ©  2023")]
+[assembly: AssemblyCopyright("Copyright ©  2024")]
 [assembly: AssemblyTrademark("ShapeDiver")]
 [assembly: AssemblyCulture("")]
 
