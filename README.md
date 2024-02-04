@@ -33,6 +33,8 @@ Copyright ©  2024
 
   demo                       Demo which prints some information about your account.
 
+  export-models              Export models from the ShapeDiver platform.
+
   get-model                  Get information about a ShapeDiver model.
 
   list-models                List ShapeDiver models, sorted by descending date of creation.
@@ -55,6 +57,7 @@ Copyright ©  2024
 # Commands
 
   * [`demo`](#command-demo)
+  * [`export-models`](#command-export-models)
   * [`get-model`](#command-get-model)
   * [`list-models`](#command-list-models)
   * [`model-computation-stats`](#command-model-computation-stats)
@@ -138,6 +141,38 @@ Outputs:
         Id: 9e41ab6cf4536ccef8ef99478f70ec05, Name: Text output, Uid: bb341a14-4bd2-4b4c-94cc-6519c1581a63
 Binary glTF files available:
 
+```
+
+## Command [`export-models`](Commands/ExportModelsCommand.cs)
+
+This command shows how to query models according to some filter criteria, 
+and download the corresponding Grasshopper models. It can be used to export
+models from your account on the ShapeDiver platform. The command also writes
+a csv file containing basic information about the exported models.
+
+### Usage
+
+```
+C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help export-models
+DotNetSdkSampleConsoleApp 1.0.0.0
+Copyright ©  2024
+
+  -u, --userid           Filter models owned by the given user id, instead of your own
+
+  -b, --backendsystem    Filter models by backend system
+
+  -d, --download         Download models
+
+  --deleted              Include deleted models
+
+  -k, --key_id           ShapeDiver access key id (browser based authentication will be used if not
+                         specified)
+
+  -s, --key_secret       ShapeDiver access key secret
+
+  --help                 Display this help screen.
+
+  --version              Display version information.
 ```
 
 
