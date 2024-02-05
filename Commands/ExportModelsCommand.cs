@@ -35,6 +35,9 @@ namespace DotNetSdkSampleConsoleApp.Commands
         [Option("deleted", HelpText = "Include deleted models")]
         public bool Deleted { get; set; }
 
+        [Option("confirmed", HelpText = "Include confirmed models (models which are not yet published)")]
+        public bool Confirmed { get; set; }
+
 
         private List<ModelTokenScopeEnum> ContextScopes = new List<ModelTokenScopeEnum>() { 
             ModelTokenScopeEnum.GroupView,
@@ -56,7 +59,10 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 if (!Deleted)
                     query.AddFilter(ex => ex.Property(m => m.DeletedAt).IsNull());
 
-                query.AddFilter(ex => ex.Property(m => m.Status).InArray(new List<PDTO.ModelStatusEnum>() { PDTO.ModelStatusEnum.Done, PDTO.ModelStatusEnum.Confirmed } ));
+                if (Confirmed)
+                    query.AddFilter(ex => ex.Property(m => m.Status).InArray(new List<PDTO.ModelStatusEnum>() { PDTO.ModelStatusEnum.Done, PDTO.ModelStatusEnum.Confirmed } ));
+                else
+                    query.AddFilter(ex => ex.Property(m => m.Status).InArray(new List<PDTO.ModelStatusEnum>() { PDTO.ModelStatusEnum.Done }));
 
                 if (UserId != null)
                     query.AddFilter(ex => ex.Property(m => m.UserId).EqualTo(UserId));
