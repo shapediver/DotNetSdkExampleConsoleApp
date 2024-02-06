@@ -61,18 +61,22 @@ namespace DotNetSdkSampleConsoleApp.Commands
             catch (GeometryBackendError e)
             {
                 Console.WriteLine($"{Environment.NewLine}GeometryBackendError: {e.Message}");
+                Console.WriteLine($"{Environment.NewLine}Complete exception info: {e}");
             }
             catch (PlatformBackendError e)
             {
                 Console.WriteLine($"{Environment.NewLine}PlatformBackendError: {e.Message}");
+                Console.WriteLine($"{Environment.NewLine}Complete exception info: {e}");
             }
             catch (AuthenticationError e)
             {
                 Console.WriteLine($"{Environment.NewLine}AuthenticationError: {e.Message}");
+                Console.WriteLine($"{Environment.NewLine}Complete exception info: {e}");
             }
             catch (Exception e)
             {
                 Console.WriteLine($"{Environment.NewLine}Error: {e.Message}");
+                Console.WriteLine($"{Environment.NewLine}Complete exception info: {e}");
             }
         }
 

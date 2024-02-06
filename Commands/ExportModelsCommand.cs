@@ -38,6 +38,9 @@ namespace DotNetSdkSampleConsoleApp.Commands
         [Option("confirmed", HelpText = "Include confirmed models (models which are not yet published)")]
         public bool Confirmed { get; set; }
 
+        [Option("created-at", HelpText = "Creation date from which querying should start (unix timestamp)")]
+        public string CreatedAt { get; set; }
+
 
         private List<ModelTokenScopeEnum> ContextScopes = new List<ModelTokenScopeEnum>() { 
             ModelTokenScopeEnum.GroupView,
@@ -68,6 +71,9 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     query.AddFilter(ex => ex.Property(m => m.UserId).EqualTo(UserId));
                 else
                     query.AddFilter(ex => ex.Property(m => m.UserId).EqualTo(sdk.AuthenticationClient.GetUserId()));
+
+                if (!String.IsNullOrEmpty(CreatedAt))
+                    query.AddFilter(ex => ex.Property(m => m.CreatedAt).LessOrEqualTo(Convert.ToInt64(CreatedAt)));
 
                 query.EmbeddableFields = BackendSystemFilter != null ? new List<ModelQueryEmbeddableFields>() { ModelQueryEmbeddableFields.Backend_System } : null;
           
@@ -103,17 +109,23 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
                         // download model
                         if (Download) {
-                            var context = await sdk.GeometryBackendClient.GetContext(model.Id, sdk.PlatformClient, ContextScopes);
-                            var fileEnding = context.ModelData.Setting.Computation.FileType == GDTO.ModelFileTypeEnum.GrasshopperBinary ? "gh" : "ghx";
-                            var filename = $"{createdAt.ToString("yyyyMMddHHmmss")}-{model.Slug}.{fileEnding}";
-                            using (var stream = await sdk.GeometryBackendClient.DownloadModel(context))
+                            try
                             {
-                                using (var fileStream = File.Create(filename))
+                                var context = await sdk.GeometryBackendClient.GetContext(model.Id, sdk.PlatformClient, ContextScopes);
+                                var fileEnding = context.ModelData.Setting.Computation.FileType == GDTO.ModelFileTypeEnum.GrasshopperBinary ? "gh" : "ghx";
+                                var filename = $"{createdAt.ToString("yyyyMMddHHmmss")}-{model.Slug}.{fileEnding}";
+                                using (var stream = await sdk.GeometryBackendClient.DownloadModel(context))
                                 {
-                                    stream.CopyTo(fileStream);
+                                    using (var fileStream = File.Create(filename))
+                                    {
+                                        stream.CopyTo(fileStream);
+                                    }
                                 }
                             }
-                            
+                            catch (Exception e)
+                            {
+                                throw new Exception($"Error downloading model {model.Slug} ({model.Id})", e);
+                            }
                         }
                     }
 
