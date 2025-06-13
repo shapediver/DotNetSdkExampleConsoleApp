@@ -1,15 +1,7 @@
-﻿using ShapeDiver.SDK;
-using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
-using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
-using ShapeDiver.SDK.PlatformBackend;
-using ShapeDiver.SDK.GeometryBackend;
-using System;
+﻿using ShapeDiver.SDK.PlatformBackend;
+using ShapeDiver.SDK.PlatformBackend.DTO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using ShapeDiver.SDK.PlatformBackend.DTO;
 
 namespace DotNetSdkSampleConsoleApp.Util
 {

@@ -1,19 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Linq;
-using System.Diagnostics;
-
-using ShapeDiver.SDK;
+﻿using CommandLine;
 using ShapeDiver.SDK.Authentication;
-using ShapeDiver.SDK.PlatformBackend;
 using ShapeDiver.SDK.GeometryBackend;
-using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
+using ShapeDiver.SDK.PlatformBackend;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
-
-using CommandLine;
+using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -83,7 +80,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     Console.Write("Input file name: ");
                     InputFileName = Console.ReadLine();
                 }
-              
+
                 if (!File.Exists(InputFileName))
                     throw new ArgumentException($"File {InputFileName} can not be read");
                 var inputFileData = File.ReadAllText(InputFileName);
@@ -106,7 +103,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     // Note: The authenticated platform client serves as token creator here.
                     await sdk.GeometryBackendClient.GetSessionContext(IdOrSlug, sdk.PlatformClient, new List<PDTO.ModelTokenScopeEnum>() { PDTO.ModelTokenScopeEnum.GroupView, PDTO.ModelTokenScopeEnum.GroupExport });
                 Console.WriteLine($"done ({stopWatch.ElapsedMilliseconds}ms)");
-            
+
                 // Identify text input parameters
                 // - textParameter is used for rather short input strings 
                 // - textFileParameter is used for longer input strings
@@ -214,7 +211,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 {
                     Console.SetIn(new StreamReader(inputStream, Encoding.Default, false, 512));
                     return Console.ReadLine();
-                } 
+                }
                 finally
                 {
                     Console.SetIn(reader);

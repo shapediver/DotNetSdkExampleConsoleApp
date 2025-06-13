@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.IO;
-
+﻿using CommandLine;
 using ShapeDiver.SDK.PlatformBackend;
-using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
-using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
-
-using CommandLine;
-using System.Linq;
-using DotNetSdkSampleConsoleApp.Util;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using ShapeDiver.SDK.PlatformBackend.DTO;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
+using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -42,7 +35,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
         public string CreatedAt { get; set; }
 
 
-        private List<ModelTokenScopeEnum> ContextScopes = new List<ModelTokenScopeEnum>() { 
+        private List<ModelTokenScopeEnum> ContextScopes = new List<ModelTokenScopeEnum>() {
             ModelTokenScopeEnum.GroupView,
             ModelTokenScopeEnum.FileDownload
         };
@@ -63,7 +56,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     query.AddFilter(ex => ex.Property(m => m.DeletedAt).IsNull());
 
                 if (Confirmed)
-                    query.AddFilter(ex => ex.Property(m => m.Status).InArray(new List<PDTO.ModelStatusEnum>() { PDTO.ModelStatusEnum.Done, PDTO.ModelStatusEnum.Confirmed } ));
+                    query.AddFilter(ex => ex.Property(m => m.Status).InArray(new List<PDTO.ModelStatusEnum>() { PDTO.ModelStatusEnum.Done, PDTO.ModelStatusEnum.Confirmed }));
                 else
                     query.AddFilter(ex => ex.Property(m => m.Status).InArray(new List<PDTO.ModelStatusEnum>() { PDTO.ModelStatusEnum.Done }));
 
@@ -76,7 +69,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     query.AddFilter(ex => ex.Property(m => m.CreatedAt).LessOrEqualTo(Convert.ToInt64(CreatedAt)));
 
                 query.EmbeddableFields = BackendSystemFilter != null ? new List<ModelQueryEmbeddableFields>() { ModelQueryEmbeddableFields.Backend_System } : null;
-          
+
                 // prepare CSV export
                 var csvFilename = $"models-{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}.csv";
                 Action<string> appendCsvLine = (string message) =>
@@ -88,7 +81,8 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
                 // query models
                 var models = (await sdk.PlatformClient.ModelApi.Query<PDTO.ModelDto>(query)).Data;
-                if (models.Result.Count == 0) {
+                if (models.Result.Count == 0)
+                {
                     Console.WriteLine("No matching models found.");
                     return;
                 }
@@ -108,7 +102,8 @@ namespace DotNetSdkSampleConsoleApp.Commands
                         appendCsvLine($"{createdAt};{model.Slug};{model.Title};{model.Status}");
 
                         // download model
-                        if (Download) {
+                        if (Download)
+                        {
                             try
                             {
                                 var context = await sdk.GeometryBackendClient.GetContext(model.Id, sdk.PlatformClient, ContextScopes);

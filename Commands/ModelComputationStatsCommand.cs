@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.IO;
-
-using ShapeDiver.SDK.PlatformBackend;
+﻿using CommandLine;
 using ShapeDiver.Newtonsoft.Json;
-using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
-using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
-using ShapeDiver.SDK.GeometryBackend.Resources.Interfaces;
-
-using CommandLine;
-using System.Linq;
 using ShapeDiver.SDK.GeometryBackend.DTO;
+using ShapeDiver.SDK.GeometryBackend.Resources.Interfaces;
+using ShapeDiver.SDK.PlatformBackend;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
+using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -94,7 +90,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 logMessage($"Fetch computations from log between {timestampFrom} and {timestampTo} ...");
                 var response = await gbSdk.Model.QueryComputations(model.GeometryBackendId, timestampFrom, timestampTo, order: order);
 
-                while ( true ) 
+                while (true)
                 {
                     if (response.Computations.Count > 0)
                     {
@@ -145,7 +141,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 IEnumerable<ComponentStats> componentsOrderedByAvgTimeDesc = Components.Select(c => c.Value).OrderBy(c => c.AvgTime).Reverse();
                 StringBuilder sb = new StringBuilder();
                 sb.AppendLine($"Name,InstanceId,NickName,AvgTime,MaxTime,Count,TotalTime");
-                foreach ( var c in componentsOrderedByAvgTimeDesc)
+                foreach (var c in componentsOrderedByAvgTimeDesc)
                 {
                     sb.AppendLine($"{c.Component.Name},{c.Component.Instance},{c.Component.NickName},{N2S(c.AvgTime)},{N2S(c.MaxTime)},{c.Count},{N2S(c.TotalTime)}");
                 }
@@ -153,7 +149,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 var componentCsvFilename = $"{prefix}--components-stats.csv";
                 logMessage($"{Environment.NewLine}Exported information about {componentsOrderedByAvgTimeDesc.Count()} components sorted by decreasing average computation time to {componentCsvFilename}.");
                 File.WriteAllText(componentCsvFilename, componentCsv);
-           
+
                 // csv file containing the stats for successful computations without exports
                 var computationsCsvFilename = $"{prefix}--computations-stats.csv";
                 var computationsSelected = computations.Where(c => c.Status == ModelComputationStatusEnum.Success && c.Exports.Count == 0);

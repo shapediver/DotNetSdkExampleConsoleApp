@@ -1,14 +1,12 @@
-﻿using System;
+﻿using CommandLine;
+using DotNetSdkSampleConsoleApp.Util;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using System.IO;
-
-using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
+using System.Threading.Tasks;
 using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
-
-using CommandLine;
-using DotNetSdkSampleConsoleApp.Util;
+using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -25,7 +23,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
         [Option('t', "title", HelpText = "Title of the model on the ShapeDiver Platform")]
         public string Title { get; set; }
-        
+
         private List<PDTO.ModelTokenScopeEnum> Scopes = new List<PDTO.ModelTokenScopeEnum>() {
                 PDTO.ModelTokenScopeEnum.GroupOwner,
                 PDTO.ModelTokenScopeEnum.GroupExport,

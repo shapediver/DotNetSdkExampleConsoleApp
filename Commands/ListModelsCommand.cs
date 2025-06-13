@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.IO;
-
+﻿using CommandLine;
 using ShapeDiver.SDK.PlatformBackend;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
-using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
-
-using CommandLine;
-using System.Linq;
-using DotNetSdkSampleConsoleApp.Util;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -22,7 +13,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
     [Verb("list-models", isDefault: false, HelpText = "List ShapeDiver models, sorted by descending date of creation.")]
     class ListModelsCommand : BaseCommand, ICommand
     {
-        
+
 
         [Option('u', "user", HelpText = "Filter models owned by you")]
         public bool FilterUser { get; set; }
@@ -50,7 +41,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 var query = sdk.PlatformClient.ModelApi.CreateQueryBody(Limit == null ? 10 : Limit.Value, true /* attain limit */, Offset);
                 query.AddSorter(SorterType.Created_At, SortOrder.Desc);
                 query.AddFilter(ex => ex.Property(m => m.DeletedAt).IsNull());
-                query.AddFilter(ex => ex.Property(m => m.Status).InArray(new List<PDTO.ModelStatusEnum>() { PDTO.ModelStatusEnum.Done, PDTO.ModelStatusEnum.Confirmed } ));
+                query.AddFilter(ex => ex.Property(m => m.Status).InArray(new List<PDTO.ModelStatusEnum>() { PDTO.ModelStatusEnum.Done, PDTO.ModelStatusEnum.Confirmed }));
                 if (FilterUser)
                     query.AddFilter(ex => ex.Property(m => m.UserId).EqualTo(sdk.AuthenticationClient.GetUserId()));
                 if (!String.IsNullOrEmpty(Visibility))
@@ -60,7 +51,8 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
                 // query model call
                 var result = (await sdk.PlatformClient.ModelApi.Query<PDTO.ModelPublicDto>(query)).Data;
-                if (result.Result.Count == 0) {
+                if (result.Result.Count == 0)
+                {
                     Console.WriteLine("No matching models found.");
                     return;
                 }

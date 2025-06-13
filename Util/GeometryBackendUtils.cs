@@ -1,14 +1,11 @@
 ﻿using ShapeDiver.SDK;
-using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
-using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
-using ShapeDiver.SDK.PlatformBackend;
 using ShapeDiver.SDK.GeometryBackend;
+using ShapeDiver.SDK.PlatformBackend;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
+using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
 
 namespace DotNetSdkSampleConsoleApp.Util
 {
@@ -48,7 +45,7 @@ namespace DotNetSdkSampleConsoleApp.Util
             }
 
             var maxCompTime = modelDto.Setting.Computation.MaxCompTime;
-            Console.WriteLine($"Maximum allowed computation time: {maxCompTime/1000} seconds");
+            Console.WriteLine($"Maximum allowed computation time: {maxCompTime / 1000} seconds");
 
             // wait for model checking
             start = DateTime.UtcNow;
@@ -58,7 +55,7 @@ namespace DotNetSdkSampleConsoleApp.Util
             {
                 if ((DateTime.UtcNow - start).TotalMilliseconds > 2 * maxCompTime)
                 {
-                    throw new Exception($"Model check did not complete within ${maxCompTime/1000} seconds");
+                    throw new Exception($"Model check did not complete within ${maxCompTime / 1000} seconds");
                 }
                 Console.WriteLine($"Waiting for model check to finish...");
                 Thread.Sleep(2500);

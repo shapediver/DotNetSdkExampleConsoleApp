@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using System.IO;
-
-using ShapeDiver.SDK.PlatformBackend;
-using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
-using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
-
-using CommandLine;
-using System.Linq;
+﻿using CommandLine;
 using DotNetSdkSampleConsoleApp.Util;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {

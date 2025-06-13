@@ -1,20 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
-
+﻿using CommandLine;
 using ShapeDiver.SDK;
 using ShapeDiver.SDK.Authentication;
-using ShapeDiver.SDK.PlatformBackend;
 using ShapeDiver.SDK.GeometryBackend;
-
-using CommandLine;
-using ShapeDiver.SDK.Container;
+using ShapeDiver.SDK.PlatformBackend;
+using System;
+using System.Threading.Tasks;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
     /// <summary>
     /// Base functionality for commands (authentication, etc)
     /// </summary>
-  
+
     class BaseCommand
     {
         [Option('k', "key_id", HelpText = "ShapeDiver access key id (browser based authentication will be used if not specified)")]

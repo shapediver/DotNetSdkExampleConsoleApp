@@ -1,21 +1,18 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Linq;
-using System.Diagnostics;
-using System.Collections.Concurrent;
-using System.Threading;
-
-using ShapeDiver.SDK;
+﻿using CommandLine;
 using ShapeDiver.SDK.Authentication;
-using ShapeDiver.SDK.PlatformBackend;
 using ShapeDiver.SDK.GeometryBackend;
-using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
+using ShapeDiver.SDK.PlatformBackend;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using GDTO = ShapeDiver.SDK.GeometryBackend.DTO;
-
-using CommandLine;
+using PDTO = ShapeDiver.SDK.PlatformBackend.DTO;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -100,7 +97,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                         ModelViewUrl = Console.ReadLine();
                     }
                 }
-                if (String.IsNullOrEmpty(IdOrSlug) && (String.IsNullOrEmpty(BackendTicket) || String.IsNullOrEmpty(ModelViewUrl)) )
+                if (String.IsNullOrEmpty(IdOrSlug) && (String.IsNullOrEmpty(BackendTicket) || String.IsNullOrEmpty(ModelViewUrl)))
                 {
                     throw new ArgumentException($"Either a model identifier, or backend ticket AND model view URL must be specified");
                 }
@@ -141,14 +138,14 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
                 // Initialize queue of input files to be processed
                 var inputFileNamesQueue = new ConcurrentQueue<string>(Directory.GetFiles(InputDirectory));
-                
+
                 // Initialize data for showing statistics
                 Stopwatch = Stopwatch.StartNew();
                 NumTotal = inputFileNamesQueue.Count;
 
                 // start parallel computations
                 var Taskset = new HashSet<Task>();
-                
+
                 // wait for queue to become empty
                 while (true)
                 {
@@ -166,7 +163,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
                     // remove resolved task from the set
                     Taskset.Remove(resolved);
-            
+
                     // check if all files have been processed
                     if (Taskset.Count == 0 && inputFileNamesQueue.IsEmpty)
                         break;
@@ -269,7 +266,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
             // Run export
             var exportResult = await context.GeometryBackendClient.ComputeExport(context, textExport.Id, paramDict);
-  
+
             if (exportResult.HasFailed)
             {
                 throw new Exception(exportResult.Message);
@@ -303,7 +300,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 {
                     Console.SetIn(new StreamReader(inputStream, Encoding.Default, false, 512));
                     return Console.ReadLine();
-                } 
+                }
                 finally
                 {
                     Console.SetIn(reader);

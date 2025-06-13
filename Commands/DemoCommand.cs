@@ -1,10 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-
+﻿using CommandLine;
 using ShapeDiver.SDK.PlatformBackend;
 using ShapeDiver.SDK.PlatformBackend.DTO;
-
-using CommandLine;
+using System;
+using System.Threading.Tasks;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -124,7 +122,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     }
                 }
             });
-          
+
         }
     }
 }

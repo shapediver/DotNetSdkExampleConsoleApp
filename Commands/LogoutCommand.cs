@@ -1,11 +1,6 @@
-﻿using System;
+﻿using CommandLine;
+using System;
 using System.Threading.Tasks;
-
-using ShapeDiver.SDK.PlatformBackend;
-using ShapeDiver.SDK.PlatformBackend.DTO;
-
-using CommandLine;
-using ShapeDiver.SDK.Authentication;
 
 namespace DotNetSdkSampleConsoleApp.Commands
 {
@@ -27,9 +22,9 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     Console.WriteLine($"{Environment.NewLine}Refresh token cleared.");
                 else
                     Console.WriteLine($"{Environment.NewLine}No refresh token found.");
-           
+
             });
-          
+
         }
     }
 }

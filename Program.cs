@@ -1,5 +1,4 @@
 ﻿using CommandLine;
-using DotNetSdkSampleConsoleApp.Commands;
 using System.Linq;
 using System.Reflection;
 
