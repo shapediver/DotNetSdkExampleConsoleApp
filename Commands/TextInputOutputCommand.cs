@@ -93,7 +93,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     IdOrSlug = IdOrSlug.Split('/').Last();
 
                 // get SDK, authenticated to the platform in case we need to use the platform API
-                var sdk = String.IsNullOrEmpty(IdOrSlug) ? new ShapeDiverSDK() : await GetAuthenticatedSDK();
+                var sdk = String.IsNullOrEmpty(IdOrSlug) ? GetSDK() : await GetAuthenticatedSDK();
 
                 // Create a session based context, either
                 // using the given backend ticket and model view URL, or

@@ -24,12 +24,17 @@ namespace DotNetSdkSampleConsoleApp.Commands
         public string KeySecret { get; set; }
 
         /// <summary>
+        /// Client ID for generic applications
+        /// </summary>
+        const string CLIENT_ID = "827bcbdc-8a5c-481a-b09a-e498074d91ca";
+
+        /// <summary>
         /// Get an unauthenticated instance of the SDK.
         /// </summary>
         /// <returns></returns>
         protected IShapeDiverSDK GetSDK()
         {
-            return new ShapeDiverSDK();
+            return new ShapeDiverSDK(CLIENT_ID);
         }
 
         /// <summary>
@@ -39,7 +44,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
         protected async Task<IShapeDiverSDK> GetAuthenticatedSDK()
         {
             // create instance of SDK, authenticate
-            var sdk = new ShapeDiverSDK();
+            var sdk = new ShapeDiverSDK(CLIENT_ID);
             if (!String.IsNullOrEmpty(KeyId) && !String.IsNullOrEmpty(KeySecret))
             {
                 await sdk.AuthenticationClient.Authenticate(KeyId, KeySecret);
