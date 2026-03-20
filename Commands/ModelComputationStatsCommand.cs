@@ -212,7 +212,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
             var sortedNumbers = values.OrderBy(n => n).ToList();
             Func<double, string> p = (double d) => N2S(CalculatePercentile(sortedNumbers, d));
 
-            logMessage($"{description} - Min,Avg,Mag: {min},{N2S(avg)},{max} - p01,p05,p10,p25,p50,p75,p90,p95,p99: {p(0.01)},{p(0.05)},{p(0.1)},{p(0.25)},{p(0.5)},{p(0.75)},{p(0.9)},{p(0.95)},{p(0.99)}");
+            logMessage($"{description} - Min,Avg,Max: {min},{N2S(avg)},{max} - p01,p05,p10,p25,p50,p75,p90,p95,p99: {p(0.01)},{p(0.05)},{p(0.1)},{p(0.25)},{p(0.5)},{p(0.75)},{p(0.9)},{p(0.95)},{p(0.99)}");
         }
 
         string N2S(double n)
