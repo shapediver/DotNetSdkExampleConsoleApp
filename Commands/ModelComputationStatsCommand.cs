@@ -101,7 +101,9 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
                     foreach (var computation in response.Computations)
                     {
-                        foreach (var component in computation.Stats.Model.Components.Computed)
+                        var computed = computation.Stats?.Model?.Components?.Computed;
+                        if (computed == null) continue;
+                        foreach (var component in computed)
                         {
                             if (!Components.ContainsKey(component.Instance))
                             {
