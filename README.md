@@ -102,19 +102,22 @@ Username: SUPPRESSED
 FirstName: SUPPRESSED
 LastName: SUPPRESSED
 Email: SUPPRESSED
-Credits used this month: 61
+Credits used this month: 138
 
-Usage of exports and embedded sessions in the past 5 days:
-Exports on 20230520: 0
-Credits for embedded sessions on 20230520: 0
-Exports on 20230521: 0
-Credits for embedded sessions on 20230521: 0
-Exports on 20230522: 0
-Credits for embedded sessions on 20230522: 0
-Exports on 20230523: 0
-Credits for embedded sessions on 20230523: 0
-Exports on 20230524: 9
-Credits for embedded sessions on 20230524: 0
+Usage of credits per day and backend system this month:
+20260402: credits used on system sddev: 2
+20260402: credits used on system sddev2: 4
+20260405: credits used on system sddev2: 30
+20260406: credits used on system sddev2: 5
+20260406: credits used on system sddev3: 1
+20260407: credits used on system sddev2: 14
+20260407: credits used on system sddev3: 15
+20260408: credits used on system sddev2: 17
+20260408: credits used on system sddev3: 35
+20260409: credits used on system sddev2: 5
+20260409: credits used on system sddev3: 5
+20260412: credits used on system sddev2: 4
+20260415: credits used on system sddev3: 1
 
 Latest published models:
         Title: twistedtower-sdeuc1, Slug: twistedtower-sdeuc1

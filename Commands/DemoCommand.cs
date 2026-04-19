@@ -33,23 +33,34 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 Console.WriteLine($"FirstName: {user.FirstName}");
                 Console.WriteLine($"LastName: {user.LastName}");
                 Console.WriteLine($"Email: {user.Email}");
-                Console.WriteLine($"Credits used this month: {user.UsedCredits.UsedCreditsCurrentMonth}");
+                Console.WriteLine($"Credits used this month: {user.UsedCredits.UsedCreditsCurrentMonthV2}");
 
                 // get detailed information about usage in the past days
                 int numDays = 5;
                 Console.WriteLine();
-                Console.WriteLine($"Usage of exports and embedded sessions in the past {numDays} days:");
-                long unixTimeNow = ((DateTimeOffset)DateTime.Now).ToUnixTimeSeconds();
-                long unixTimeTenDaysAgo = unixTimeNow - (numDays + 1) * 86400;
-                var analyticsQuery = sdk.PlatformClient.UserAnalyticsApi.CreateQueryBody();
+                Console.WriteLine($"Usage of credits per day and backend system this month:");
+                long unixTimeStartOfCurrentMonth = ((DateTimeOffset)new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc)).ToUnixTimeSeconds();
+                var analyticsQuery = sdk.PlatformClient.UserCreditMetricsApi.CreateQueryBody(1000, true);
                 analyticsQuery.AddFilter(ex => ex.Property(d => d.TimestampType).EqualTo(AnalyticsTimestampTypeEnum.Day));
-                analyticsQuery.AddFilter(ex => ex.Property(d => d.TimestampDate).GreaterOrEqualTo(unixTimeTenDaysAgo));
+                analyticsQuery.AddFilter(ex => ex.Property(d => d.TimestampDate).GreaterOrEqualTo(unixTimeStartOfCurrentMonth));
                 analyticsQuery.AddFilter(ex => ex.Property(d => d.UserId).EqualTo(user.Id));
-                var analyticsResult = await sdk.PlatformClient.UserAnalyticsApi.Query(analyticsQuery);
+                analyticsQuery.AddSorter(SorterType.Created_At, SortOrder.Asc);
+                var analyticsResult = await sdk.PlatformClient.UserCreditMetricsApi.Query(analyticsQuery);
                 foreach (var dailyStats in analyticsResult.Data.Result)
                 {
-                    Console.WriteLine($"Exports on {dailyStats.Timestamp}: {dailyStats.Data.Export.Sum}");
-                    Console.WriteLine($"Credits for embedded sessions on {dailyStats.Timestamp}: {dailyStats.Data.Embedded.BillableCount}");
+                    var data = dailyStats.Data;
+                    var credits =
+                        data.Ar.Credits +
+                        data.Default.Combined.Credits +
+                        data.Default.Computations.Credits +
+                        data.Default.Exports.Credits +
+                        data.Default.Outputs.Credits +
+                        data.Limited.Combined.Credits +
+                        data.Limited.Computations.Credits +
+                        data.Limited.Exports.Credits +
+                        data.Limited.Sessions.Credits
+                        ;
+                    Console.WriteLine($"{dailyStats.Timestamp}: credits used on system {dailyStats.BackendSystem.Alias}: {credits}");
                 }
                 if (analyticsResult.Data.Result.Count == 0)
                 {
