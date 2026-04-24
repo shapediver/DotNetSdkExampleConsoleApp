@@ -36,7 +36,6 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 Console.WriteLine($"Credits used this month: {user.UsedCredits.UsedCreditsCurrentMonthV2}");
 
                 // get detailed information about usage in the past days
-                int numDays = 5;
                 Console.WriteLine();
                 Console.WriteLine($"Usage of credits per day and backend system this month:");
                 long unixTimeStartOfCurrentMonth = ((DateTimeOffset)new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc)).ToUnixTimeSeconds();

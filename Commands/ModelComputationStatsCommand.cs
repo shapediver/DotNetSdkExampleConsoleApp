@@ -116,16 +116,6 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     if (String.IsNullOrEmpty(response.Pagination.NextOffset))
                         break;
 
-                    // workaroung for timestamp filter bug
-                    if (response.Computations.Count > 0)
-                    {
-                        if (response.Computations.Last().Timestamp < long.Parse(timestampFrom))
-                        {
-                            logMessage($"Workaround for timestamp filter bug: stop querying computations.");
-                            break;
-                        }
-                    }
-
                     response = await gbSdk.Model.QueryComputations(model.GeometryBackendId, timestampFrom, timestampTo, order: order, offset: response.Pagination.NextOffset);
                 }
 
@@ -149,31 +139,37 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 }
                 var componentCsv = sb.ToString();
                 var componentCsvFilename = $"{prefix}--components-stats.csv";
-                logMessage($"{Environment.NewLine}Exported information about {componentsOrderedByAvgTimeDesc.Count()} components sorted by decreasing average computation time to {componentCsvFilename}.");
+                logMessage($"Exported information about {componentsOrderedByAvgTimeDesc.Count()} components sorted by decreasing average computation time to {componentCsvFilename}.");
                 File.WriteAllText(componentCsvFilename, componentCsv);
 
                 // csv file containing the stats for successful computations without exports
                 var computationsCsvFilename = $"{prefix}--computations-stats.csv";
-                var computationsSelected = computations.Where(c => c.Status == ModelComputationStatusEnum.Success && c.Exports.Count == 0);
+                var computationsSelected = computations.Where(c => c.Status == ModelComputationStatusEnum.Success && c.Id != c.ComputeRequestId && c.Exports.Count == 0);
                 ExportComputationsSummaryToCsv(computationsCsvFilename, computationsSelected);
-                logMessage($"{Environment.NewLine}Exported stats of {computationsSelected.Count()} successful computations to {componentCsvFilename}.");
+                logMessage($"Exported stats of {computationsSelected.Count()} successful computations to {computationsCsvFilename}.");
 
                 // csv file containing the stats for successful exports
                 var exportsCsvFilename = $"{prefix}--exports-stats.csv";
-                computationsSelected = computations.Where(c => c.Status == ModelComputationStatusEnum.Success && c.Exports.Count != 0);
+                computationsSelected = computations.Where(c => c.Status == ModelComputationStatusEnum.Success && c.Id != c.ComputeRequestId && c.Exports.Count != 0);
                 ExportComputationsSummaryToCsv(exportsCsvFilename, computationsSelected);
-                logMessage($"{Environment.NewLine}Exported stats of {computationsSelected.Count()} successful exports to {exportsCsvFilename}.");
+                logMessage($"Exported stats of {computationsSelected.Count()} successful exports to {exportsCsvFilename}.");
 
                 // csv file containing the stats for failed computations and exports
                 var failedCsvFilename = $"{prefix}--failed-stats.csv";
-                computationsSelected = computations.Where(c => c.Status != ModelComputationStatusEnum.Success);
+                computationsSelected = computations.Where(c => c.Status != ModelComputationStatusEnum.Success && c.Id != c.ComputeRequestId);
                 ExportComputationsSummaryToCsv(failedCsvFilename, computationsSelected);
-                logMessage($"{Environment.NewLine}Exported stats of {computationsSelected.Count()} failed computations and exports to {failedCsvFilename}.");
+                logMessage($"Exported stats of {computationsSelected.Count()} failed computations and exports to {failedCsvFilename}.");
+
+                // csv file containing the stats for model loading
+                var loadingCsvFilename = $"{prefix}--loading-stats.csv";
+                var modelLoadingComputations = computations.Where(c => c.Status == ModelComputationStatusEnum.Success && c.Id == c.ComputeRequestId);
+                ExportModelLoadingSummaryToCsv(loadingCsvFilename, modelLoadingComputations);
+                logMessage($"Exported stats of {modelLoadingComputations.Count()} processed model loading requests to {loadingCsvFilename}.");
 
                 // json file containing the stats for all computations
-                var jsonFilename = $"{prefix}--computations-stats.json";
+                var jsonFilename = $"{prefix}--computations-data.json";
                 File.WriteAllText(jsonFilename, JsonConvert.SerializeObject(computations, Formatting.Indented));
-                logMessage($"{Environment.NewLine}Exported stats of all computations to {jsonFilename}.");
+                logMessage($"Exported data of all computations to {jsonFilename}.");
 
                 // find and report extreme computations
                 logMessage($"{Environment.NewLine}Summary statistics of successful computations:");
@@ -185,6 +181,9 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeWait, "Milliseconds the request waited before being processed (time_wait)", logMessage);
                 PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeCompletion, "Milliseconds used to answer the request (time_completion)", logMessage);
                 PrintSummaryStatistic(successfullComputations, c => c.Stats.SizeAssets, "Size of resulting data in bytes (size_assets)", logMessage);
+                PrintSummaryStatistic(modelLoadingComputations, c => c.Stats.TimeModelOpen, "Milliseconds used during model loading for opening the model (time_model_open)", logMessage);
+                // TODO SS-9529 replace by c.Stats.TimeModelPrepare once SDK 1.32 has been released
+                PrintSummaryStatistic(modelLoadingComputations, c => c.Stats.TimeProcessing - c.Stats.TimeModelOpen, "Milliseconds used during model loading for preparation of scripted components etc (time_model_prepare)", logMessage);
 
                 File.WriteAllText($"{prefix}--log.txt", log.ToString());
             });
@@ -197,6 +196,19 @@ namespace DotNetSdkSampleConsoleApp.Commands
             foreach (var computation in computations)
             {
                 sb.AppendLine($"{computation.Timestamp},{computation.Stats.TimeSolver},{computation.Stats.TimeSolverCollect},{computation.Stats.TimeStorage},{computation.Stats.TimeProcessing},{computation.Stats.TimeWait},{computation.Stats.TimeCompletion},{computation.Stats.SizeAssets},{computation.Status}");
+            }
+            var csv = sb.ToString();
+            File.WriteAllText(filename, csv);
+        }
+
+        void ExportModelLoadingSummaryToCsv(string filename, IEnumerable<GeometryBackendModelComputationDto> computations)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"timestamp,time_model_open,time_model_prepare,time_completion,status");
+            foreach (var computation in computations)
+            {
+                // TODO SS-9529 replace by c.Stats.TimeModelPrepare once SDK 1.32 has been released
+                sb.AppendLine($"{computation.Timestamp},{computation.Stats.TimeModelOpen},{computation.Stats.TimeProcessing - computation.Stats.TimeModelOpen},{computation.Stats.TimeCompletion},{computation.Status}");
             }
             var csv = sb.ToString();
             File.WriteAllText(filename, csv);
