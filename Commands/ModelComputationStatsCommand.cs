@@ -173,7 +173,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
 
                 // find and report extreme computations
                 logMessage($"{Environment.NewLine}Summary statistics of successful computations:");
-                var successfullComputations = computations.Where(c => c.Status == ModelComputationStatusEnum.Success);
+                var successfullComputations = computations.Where(c => c.Status == ModelComputationStatusEnum.Success && c.Id != c.ComputeRequestId);
                 PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeSolver, "Milliseconds used by Grasshopper solver (time_solver)", logMessage);
                 PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeSolverCollect, "Milliseconds used to collect data after solution (time_solver_collect)", logMessage);
                 PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeStorage, "Milliseconds used to store data (time_storage)", logMessage);
@@ -182,8 +182,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 PrintSummaryStatistic(successfullComputations, c => c.Stats.TimeCompletion, "Milliseconds used to answer the request (time_completion)", logMessage);
                 PrintSummaryStatistic(successfullComputations, c => c.Stats.SizeAssets, "Size of resulting data in bytes (size_assets)", logMessage);
                 PrintSummaryStatistic(modelLoadingComputations, c => c.Stats.TimeModelOpen, "Milliseconds used during model loading for opening the model (time_model_open)", logMessage);
-                // TODO SS-9529 replace by c.Stats.TimeModelPrepare once SDK 1.32 has been released
-                PrintSummaryStatistic(modelLoadingComputations, c => c.Stats.TimeProcessing - c.Stats.TimeModelOpen, "Milliseconds used during model loading for preparation of scripted components etc (time_model_prepare)", logMessage);
+                PrintSummaryStatistic(modelLoadingComputations, c => c.Stats.TimeModelPrepare, "Milliseconds used during model loading for preparation of scripted components etc (time_model_prepare)", logMessage);
 
                 File.WriteAllText($"{prefix}--log.txt", log.ToString());
             });
@@ -208,13 +207,13 @@ namespace DotNetSdkSampleConsoleApp.Commands
             foreach (var computation in computations)
             {
                 // TODO SS-9529 replace by c.Stats.TimeModelPrepare once SDK 1.32 has been released
-                sb.AppendLine($"{computation.Timestamp},{computation.Stats.TimeModelOpen},{computation.Stats.TimeProcessing - computation.Stats.TimeModelOpen},{computation.Stats.TimeCompletion},{computation.Status}");
+                sb.AppendLine($"{computation.Timestamp},{computation.Stats.TimeModelOpen},{computation.Stats.TimeModelPrepare},{computation.Stats.TimeCompletion},{computation.Status}");
             }
             var csv = sb.ToString();
             File.WriteAllText(filename, csv);
         }
 
-        void PrintSummaryStatistic(IEnumerable<GeometryBackendModelComputationDto> computations, Func<GeometryBackendModelComputationDto, int> selector, string description, Action<string> logMessage)
+        void PrintSummaryStatistic(IEnumerable<GeometryBackendModelComputationDto> computations, Func<GeometryBackendModelComputationDto, long> selector, string description, Action<string> logMessage)
         {
             var values = computations.Select(c => selector(c)).ToList();
             var min = values.Min();
@@ -239,7 +238,7 @@ namespace DotNetSdkSampleConsoleApp.Commands
         /// <param name="percentile"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        static double CalculatePercentile(List<int> sortedNumbers, double percentile)
+        static double CalculatePercentile(List<long> sortedNumbers, double percentile)
         {
             if (sortedNumbers == null || sortedNumbers.Count < 2)
             {
