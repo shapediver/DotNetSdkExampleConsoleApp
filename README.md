@@ -22,9 +22,41 @@ The [ShapeDiver .NET SDK](https://www.nuget.org/packages?q=shapediver) bundles t
     * Can be used with the Platform Backend client for generating Json Web Tokens
     * Can be used with the token generator of dedicated ShapeDiver Geometry Backend systems
     
+# Prerequisites
+
+- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+
+# Build and Run on macOS / Linux
+
+Build the project:
+
+```bash
+dotnet build
+```
+
+Run a command directly without building first:
+
+```bash
+dotnet run -- <command> [options]
+```
+
+Or run the compiled binary after building:
+
+```bash
+./bin/Debug/net8.0/DotNetSdkSampleConsoleApp <command> [options]
+```
+
+Example:
+
+```bash
+dotnet run -- help
+```
+
+> **Note:** On macOS and Linux, replace `DotNetSdkSampleConsoleApp.exe` with `dotnet run --` (for development) or `./bin/Debug/net8.0/DotNetSdkSampleConsoleApp` (after building). Replace `^` line continuation characters with `\`.
+
 # Usage
 
-Build the console application using Visual Studio. Run the executable without options to get basic help: 
+Build the console application using Visual Studio or `dotnet build`. Run the executable without options to get basic help: 
 
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe help
@@ -471,10 +503,20 @@ Closing session ...done (77ms)
 ```
 
 ### Example (command line input of options)
+
+**Windows:**
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe text-io-demo ^
   --backend_ticket 176129440dedba57391786b24ec2374e176c976a8939c5d9a4771270753653a447a1603dcac3e1e1f4b5a86571b686b3c162e032ca6c6f767926f2ecf7cbb27f8824e20d96f3d82d8c3514a61a96c4f0d95c59c3c2803ad8e531f51979123a6d660d97284d2f5ea54f13fe94fac2d47240cc208e20b23ee3-f94c0d435e8c61736cc3832e93273cae ^
   --model_view_url https://sdr7euc1.eu-central-1.shapediver.com ^
+  --input_file TextInputOutput_200k.txt
+```
+
+**macOS / Linux:**
+```bash
+dotnet run -- text-io-demo \
+  --backend_ticket 176129440dedba57391786b24ec2374e176c976a8939c5d9a4771270753653a447a1603dcac3e1e1f4b5a86571b686b3c162e032ca6c6f767926f2ecf7cbb27f8824e20d96f3d82d8c3514a61a96c4f0d95c59c3c2803ad8e531f51979123a6d660d97284d2f5ea54f13fe94fac2d47240cc208e20b23ee3-f94c0d435e8c61736cc3832e93273cae \
+  --model_view_url https://sdr7euc1.eu-central-1.shapediver.com \
   --input_file TextInputOutput_200k.txt
 Creating session ... done (739ms)
 Uploading input data ... done (506ms)
@@ -520,12 +562,14 @@ Copyright ©  2024
 ```
 
 ### Example (command line input of options, using backend ticket and model view URL)
+
+**Windows:**
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe text-io-batch-demo ^
   --backend_ticket 176129440dedba57391786b24ec2374e176c976a8939cd9a4771270753653a447a1603dcac3e1e1f4b5a86571b686b3c162e032ca6c6f767926f2ecf7cbb27f8824e20d96f3d82d8c3514a61a96c4f0d95c59c3c2803ad8e531f51979123a6d660d97284d2f5ea54f13fe94fac2d47240cc208e20b23ee3-f94c0d435e8c61736cc3832e93273cae ^
   --model_view_url https://sdr7euc1.eu-central-1.shapediver.com ^
-  --input_dir ../../text-io-batch-demo/in
-  --output_dir ../../text-io-batch-demo/out
+  --input_dir ../../data/text-io-batch-demo/in ^
+  --output_dir ../../data/text-io-batch-demo/out
 Creating session ... done (1042ms)
 Done/Failed/Total: 1 (0.1 %) / 0 / 696 | Avg time: 693ms | Avg parallelism: 0.90
 Done/Failed/Total: 2 (0.3 %) / 0 / 696 | Avg time: 721ms | Avg parallelism: 1.73
@@ -550,7 +594,18 @@ Done/Failed/Total: 696 (100.0 %) / 0 / 696 | Avg time: 1211ms | Avg parallelism:
 Closing session ...done (88436ms)
 ```
 
+**macOS / Linux:**
+```bash
+dotnet run -- text-io-batch-demo \
+  --backend_ticket 176129440dedba57391786b24ec2374e176c976a8939cd9a4771270753653a447a1603dcac3e1e1f4b5a86571b686b3c162e032ca6c6f767926f2ecf7cbb27f8824e20d96f3d82d8c3514a61a96c4f0d95c59c3c2803ad8e531f51979123a6d660d97284d2f5ea54f13fe94fac2d47240cc208e20b23ee3-f94c0d435e8c61736cc3832e93273cae \
+  --model_view_url https://sdr7euc1.eu-central-1.shapediver.com \
+  --input_dir ../../data/text-io-batch-demo/in \
+  --output_dir ../../data/text-io-batch-demo/out
+```
+
 ### Example (command line input of options, using model identifier)
+
+**Windows:**
 ```
 C:\Users\...\DotNetSdkSampleConsoleApp\bin\Debug>DotNetSdkSampleConsoleApp.exe text-io-batch-demo ^
   --model textinputoutput-sddev2 ^
@@ -584,6 +639,14 @@ Done/Failed/Total: 24 (100.0 %) / 0 / 24 | Avg time: 933ms | Avg parallelism: 8.
 Closing session ...done
 Total processing time: 22398ms
 Elapsed time: 2646ms
+```
+
+**macOS / Linux:**
+```bash
+dotnet run -- text-io-batch-demo \
+  --model textinputoutput-sddev2 \
+  --input_dir ../../data/text-io-batch-demo/in \
+  --output_dir ../../data/text-io-batch-demo/out
 ```
 
 
