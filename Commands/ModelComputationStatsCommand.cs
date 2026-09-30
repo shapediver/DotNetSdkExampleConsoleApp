@@ -24,15 +24,50 @@ namespace DotNetSdkSampleConsoleApp.Commands
         [Option('i', "identifier", HelpText = "Identifier of the model (slug, model id, geometry backend model id, or ticket)", Required = false)]
         public string Identifier { get; set; }
 
-        [Option('d', "days", HelpText = "Number of past days to inspect computation stats for")]
+        [Option('d', "days", HelpText = "Number of past days to inspect computation stats for (ignored when --from and --to are given)")]
         public int Days { get; set; }
+
+        [Option('f', "from", HelpText = "First day of the requested statistics (yyyy-MM-dd), inclusive. Must be used together with --to.")]
+        public string From { get; set; }
+
+        [Option('t', "to", HelpText = "Last day of the requested statistics (yyyy-MM-dd), inclusive (covered until 24:00). Must be used together with --from.")]
+        public string To { get; set; }
 
         public async Task Execute()
         {
             await WrapExceptions(async () =>
             {
-                // use at least one day
-                Days = Days <= 0 ? 1 : Days;
+                // determine the time range to inspect computation stats for:
+                // either an explicit date range (--from / --to) or the past number of days (--days)
+                DateTime rangeFrom;
+                DateTime rangeTo;
+
+                bool useDateRange = !String.IsNullOrEmpty(From) || !String.IsNullOrEmpty(To);
+                if (useDateRange)
+                {
+                    if (String.IsNullOrEmpty(From) || String.IsNullOrEmpty(To))
+                        throw new Exception("When specifying a date range, both --from and --to must be provided.");
+
+                    var styles = System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal;
+                    if (!DateTime.TryParse(From, System.Globalization.CultureInfo.InvariantCulture, styles, out var parsedFrom))
+                        throw new Exception($"Could not parse --from date '{From}'. Expected format yyyy-MM-dd.");
+                    if (!DateTime.TryParse(To, System.Globalization.CultureInfo.InvariantCulture, styles, out var parsedTo))
+                        throw new Exception($"Could not parse --to date '{To}'. Expected format yyyy-MM-dd.");
+
+                    // first day 00:00 to last day 24:00 (i.e. the start of the day after the last day)
+                    rangeFrom = parsedFrom.Date;
+                    rangeTo = parsedTo.Date.AddDays(1);
+
+                    if (rangeTo <= rangeFrom)
+                        throw new Exception("The --to date must not be earlier than the --from date.");
+                }
+                else
+                {
+                    // use at least one day
+                    Days = Days <= 0 ? 1 : Days;
+                    rangeTo = DateTime.UtcNow;
+                    rangeFrom = rangeTo.AddDays(-1.0 * Days);
+                }
 
                 // get identifier
                 if (String.IsNullOrEmpty(Identifier))
@@ -77,8 +112,8 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 var gbSdk = sdk.GeometryBackendClient.CreateLowLevelApi(model.BackendSystem.ModelViewUrl, token.Data.AccessToken);
 
                 // query model computations
-                var timestampFrom = DateTime.UtcNow.AddDays(-1.0 * Days).ToString("yyyyMMddHHmmssfff");
-                var timestampTo = DateTime.UtcNow.ToString("yyyyMMddHHmmssfff");
+                var timestampFrom = rangeFrom.ToString("yyyyMMddHHmmssfff");
+                var timestampTo = rangeTo.ToString("yyyyMMddHHmmssfff");
                 var order = RequestModelComputationQueryOrder.Desc;
 
                 // collect computation stats for exporting a csv and json file
@@ -90,6 +125,9 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 logMessage($"Fetch computations from log between {timestampFrom} and {timestampTo} ...");
                 var response = await gbSdk.Model.QueryComputations(model.GeometryBackendId, timestampFrom, timestampTo, order: order);
 
+                // number of computations returned by the query but outside of the requested range
+                int excludedOutOfRange = 0;
+
                 while (true)
                 {
                     if (response.Computations.Count > 0)
@@ -97,9 +135,18 @@ namespace DotNetSdkSampleConsoleApp.Commands
                         logMessage($"{response.Computations.First().Timestamp} - {response.Computations.Last().Timestamp}: {response.Computations.Count} computations");
                     }
 
-                    computations.AddRange(response.Computations);
+                    // the query may return computations older than timestampFrom (the backend
+                    // keeps paginating past the start of the range), so filter them out here.
+                    // Timestamps are 17-digit strings (yyyyMMddHHmmssfff), so ordinal comparison is chronological.
+                    var inRange = response.Computations
+                        .Where(c => String.CompareOrdinal(c.Timestamp.ToString(), timestampFrom) >= 0
+                                 && String.CompareOrdinal(c.Timestamp.ToString(), timestampTo) < 0)
+                        .ToList();
+                    excludedOutOfRange += response.Computations.Count - inRange.Count;
 
-                    foreach (var computation in response.Computations)
+                    computations.AddRange(inRange);
+
+                    foreach (var computation in inRange)
                     {
                         var computed = computation.Stats?.Model?.Components?.Computed;
                         if (computed == null) continue;
@@ -116,8 +163,16 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     if (String.IsNullOrEmpty(response.Pagination.NextOffset))
                         break;
 
+                    // results are ordered descending, so once the oldest computation of a page
+                    // is before the start of the range, all further pages are out of range too
+                    if (response.Computations.Count > 0 && String.CompareOrdinal(response.Computations.Last().Timestamp.ToString(), timestampFrom) < 0)
+                        break;
+
                     response = await gbSdk.Model.QueryComputations(model.GeometryBackendId, timestampFrom, timestampTo, order: order, offset: response.Pagination.NextOffset);
                 }
+
+                if (excludedOutOfRange > 0)
+                    logMessage($"Excluded {excludedOutOfRange} computations returned by the query outside of the requested range.");
 
                 if (computations.Count == 0)
                 {
