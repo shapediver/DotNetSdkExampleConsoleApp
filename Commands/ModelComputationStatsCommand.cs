@@ -125,6 +125,9 @@ namespace DotNetSdkSampleConsoleApp.Commands
                 logMessage($"Fetch computations from log between {timestampFrom} and {timestampTo} ...");
                 var response = await gbSdk.Model.QueryComputations(model.GeometryBackendId, timestampFrom, timestampTo, order: order);
 
+                // number of computations returned by the query but outside of the requested range
+                int excludedOutOfRange = 0;
+
                 while (true)
                 {
                     if (response.Computations.Count > 0)
@@ -132,9 +135,18 @@ namespace DotNetSdkSampleConsoleApp.Commands
                         logMessage($"{response.Computations.First().Timestamp} - {response.Computations.Last().Timestamp}: {response.Computations.Count} computations");
                     }
 
-                    computations.AddRange(response.Computations);
+                    // the query may return computations older than timestampFrom (the backend
+                    // keeps paginating past the start of the range), so filter them out here.
+                    // Timestamps are 17-digit strings (yyyyMMddHHmmssfff), so ordinal comparison is chronological.
+                    var inRange = response.Computations
+                        .Where(c => String.CompareOrdinal(c.Timestamp.ToString(), timestampFrom) >= 0
+                                 && String.CompareOrdinal(c.Timestamp.ToString(), timestampTo) < 0)
+                        .ToList();
+                    excludedOutOfRange += response.Computations.Count - inRange.Count;
 
-                    foreach (var computation in response.Computations)
+                    computations.AddRange(inRange);
+
+                    foreach (var computation in inRange)
                     {
                         var computed = computation.Stats?.Model?.Components?.Computed;
                         if (computed == null) continue;
@@ -151,8 +163,16 @@ namespace DotNetSdkSampleConsoleApp.Commands
                     if (String.IsNullOrEmpty(response.Pagination.NextOffset))
                         break;
 
+                    // results are ordered descending, so once the oldest computation of a page
+                    // is before the start of the range, all further pages are out of range too
+                    if (response.Computations.Count > 0 && String.CompareOrdinal(response.Computations.Last().Timestamp.ToString(), timestampFrom) < 0)
+                        break;
+
                     response = await gbSdk.Model.QueryComputations(model.GeometryBackendId, timestampFrom, timestampTo, order: order, offset: response.Pagination.NextOffset);
                 }
+
+                if (excludedOutOfRange > 0)
+                    logMessage($"Excluded {excludedOutOfRange} computations returned by the query outside of the requested range.");
 
                 if (computations.Count == 0)
                 {
